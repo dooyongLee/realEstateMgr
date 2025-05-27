@@ -51,11 +51,15 @@ const PropertyList = () => {
     navigate(`/properties/${id}`);
   };
 
+  const handleAdd = () => {
+    navigate('/properties/new');
+  };
+
   return (
     <Card sx={{ mt: 3 }}>
       <SearchPanel
         title="매물"
-        onAdd={() => console.log('Add property')}
+        onAdd={handleAdd}
         onSearch={handleSearch}
       />
       <TableContainer>

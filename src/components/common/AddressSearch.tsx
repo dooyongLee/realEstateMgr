@@ -1,26 +1,18 @@
 import { useState } from 'react';
-import { Box, TextField, Button } from '@mui/material';
-import { Search as SearchIcon } from '@mui/icons-material';
+import { Box, TextField, Button, Typography } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
 
-interface AddressInputProps {
+interface AddressSearchProps {
   value: string;
-  onChange: (address: string, detailAddress: string) => void;
+  onChange: (address: string) => void;
   error?: boolean;
   helperText?: string;
 }
 
-declare global {
-  interface Window {
-    daum: {
-      Postcode: new (config: any) => any;
-    };
-  }
-}
-
-const AddressInput = ({ value, onChange, error, helperText }: AddressInputProps) => {
+const AddressSearch = ({ value, onChange, error, helperText }: AddressSearchProps) => {
   const [detailAddress, setDetailAddress] = useState('');
 
-  const handleAddressSearch = () => {
+  const handleSearch = () => {
     new window.daum.Postcode({
       oncomplete: (data: any) => {
         let fullAddress = data.address;
@@ -38,34 +30,33 @@ const AddressInput = ({ value, onChange, error, helperText }: AddressInputProps)
           }
         }
 
-        onChange(fullAddress, detailAddress);
-      },
+        onChange(fullAddress);
+      }
     }).open();
   };
 
   const handleDetailAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDetailAddress = e.target.value;
-    setDetailAddress(newDetailAddress);
-    onChange(value, newDetailAddress);
+    setDetailAddress(e.target.value);
+    onChange(`${value} ${e.target.value}`);
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-      <Box sx={{ display: 'flex', gap: 1 }}>
+    <Box>
+      <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
         <TextField
           fullWidth
           value={value}
-          placeholder="주소를 검색하세요"
           error={error}
           helperText={helperText}
+          placeholder="주소를 검색하세요"
           InputProps={{
             readOnly: true,
           }}
         />
         <Button
           variant="contained"
+          onClick={handleSearch}
           startIcon={<SearchIcon />}
-          onClick={handleAddressSearch}
           sx={{ minWidth: '120px' }}
         >
           주소 검색
@@ -76,10 +67,10 @@ const AddressInput = ({ value, onChange, error, helperText }: AddressInputProps)
         value={detailAddress}
         onChange={handleDetailAddressChange}
         placeholder="상세주소를 입력하세요"
-        size="small"
+        sx={{ mt: 1 }}
       />
     </Box>
   );
 };
 
-export default AddressInput; 
+export default AddressSearch; 

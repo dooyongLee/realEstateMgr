@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material';
+import { Grid, Box, Typography, Paper } from '@mui/material';
 import StatCard from '@/components/common/StatCard';
 import GridContainer from '@/components/common/GridContainer';
 import {
@@ -24,44 +24,66 @@ const mockStats = {
 
 const PropertyStats = () => {
   return (
-    <GridContainer>
-      <Grid item xs={12} sm={6} md={3}>
-        <StatCard
-          title="전체 매물"
-          value={mockStats.total.toString()}
-          icon={<HomeIcon />}
-          color="#1976d2"
-          trend={mockStats.trends.total}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <StatCard
-          title="판매중"
-          value={mockStats.forSale.toString()}
-          icon={<SellIcon />}
-          color="#ed6c02"
-          trend={mockStats.trends.forSale}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <StatCard
-          title="계약중"
-          value={mockStats.inContract.toString()}
-          icon={<AssignmentIcon />}
-          color="#2e7d32"
-          trend={mockStats.trends.inContract}
-        />
-      </Grid>
-      <Grid item xs={12} sm={6} md={3}>
-        <StatCard
-          title="판매완료"
-          value={mockStats.sold.toString()}
-          icon={<CheckCircleIcon />}
-          color="#9c27b0"
-          trend={mockStats.trends.sold}
-        />
-      </Grid>
-    </GridContainer>
+    <Paper 
+      elevation={0} 
+      sx={{ 
+        p: 3, 
+        mb: 4,
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 2
+      }}
+    >
+      <Typography 
+        variant="h6" 
+        sx={{ 
+          mb: 3, 
+          fontWeight: 600,
+          color: 'text.primary',
+          fontSize: '1.25rem'
+        }}
+      >
+        매물 현황
+      </Typography>
+      <GridContainer>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="전체 매물"
+            value={mockStats.total.toString()}
+            icon={<HomeIcon sx={{ color: '#1976d2', fontSize: 24 }} />}
+            color="#1976d2"
+            trend={mockStats.trends.total}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="판매중"
+            value={mockStats.forSale.toString()}
+            icon={<SellIcon sx={{ color: '#ed6c02', fontSize: 24 }} />}
+            color="#ed6c02"
+            trend={mockStats.trends.forSale}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="계약중"
+            value={mockStats.inContract.toString()}
+            icon={<AssignmentIcon sx={{ color: '#2e7d32', fontSize: 24 }} />}
+            color="#2e7d32"
+            trend={mockStats.trends.inContract}
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="판매완료"
+            value={mockStats.sold.toString()}
+            icon={<CheckCircleIcon sx={{ color: '#9c27b0', fontSize: 24 }} />}
+            color="#9c27b0"
+            trend={mockStats.trends.sold}
+          />
+        </Grid>
+      </GridContainer>
+    </Paper>
   );
 };
 

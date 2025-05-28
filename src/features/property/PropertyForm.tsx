@@ -5,7 +5,6 @@ import {
   Button,
   TextField,
   MenuItem,
-  Grid,
   Typography,
   Stepper,
   Step,
@@ -14,7 +13,6 @@ import {
   Divider,
   InputAdornment,
 } from '@mui/material';
-import AddressSearch from '@/components/common/AddressSearch';
 
 const propertyTypes = [
   { value: 'APARTMENT', label: '아파트' },
@@ -81,8 +79,8 @@ const PropertyForm = () => {
     switch (step) {
       case 0:
         return (
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
+            <Box>
               <TextField
                 fullWidth
                 label="매물 제목"
@@ -92,8 +90,8 @@ const PropertyForm = () => {
                 required
                 helperText="매물을 구분할 수 있는 제목을 입력하세요"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 select
@@ -110,8 +108,8 @@ const PropertyForm = () => {
                   </MenuItem>
                 ))}
               </TextField>
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 select
@@ -128,22 +126,18 @@ const PropertyForm = () => {
                   </MenuItem>
                 ))}
               </TextField>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="subtitle2" gutterBottom>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
+              <Typography variant="subtitle1" gutterBottom>
                 주소
               </Typography>
-              <AddressSearch
-                value={formData.address}
-                onChange={handleAddressChange}
-              />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         );
       case 1:
         return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+          <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' } }}>
+            <Box>
               <TextField
                 fullWidth
                 label="월세/전세 금액"
@@ -157,8 +151,8 @@ const PropertyForm = () => {
                 }}
                 helperText="월세 또는 전세 금액을 입력하세요"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="면적"
@@ -172,8 +166,8 @@ const PropertyForm = () => {
                 }}
                 helperText="전용면적을 입력하세요"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="관리비"
@@ -186,8 +180,8 @@ const PropertyForm = () => {
                 }}
                 helperText="월 관리비를 입력하세요"
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="주차"
@@ -197,8 +191,8 @@ const PropertyForm = () => {
                 placeholder="예: 1대 가능"
                 helperText="주차 가능 대수를 입력하세요"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box sx={{ gridColumn: '1 / -1' }}>
               <TextField
                 fullWidth
                 label="입주 가능일"
@@ -211,13 +205,13 @@ const PropertyForm = () => {
                 }}
                 helperText="가능한 입주 날짜를 선택하세요"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         );
       case 2:
         return (
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
+          <Box sx={{ display: 'grid', gap: 3 }}>
+            <Box>
               <TextField
                 fullWidth
                 label="특징"
@@ -229,8 +223,8 @@ const PropertyForm = () => {
                 rows={2}
                 helperText="매물의 주요 특징을 쉼표로 구분하여 입력하세요"
               />
-            </Grid>
-            <Grid item xs={12}>
+            </Box>
+            <Box>
               <TextField
                 fullWidth
                 label="상세 설명"
@@ -242,8 +236,8 @@ const PropertyForm = () => {
                 placeholder="매물에 대한 자세한 설명을 입력하세요"
                 helperText="매물의 상세한 정보를 입력하세요"
               />
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         );
       default:
         return null;

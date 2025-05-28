@@ -1,21 +1,13 @@
 import { Grid, GridProps } from '@mui/material';
+import { ReactNode } from 'react';
 
 interface GridContainerProps extends GridProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 const GridContainer = ({ children, ...props }: GridContainerProps) => {
   return (
-    <Grid
-      container
-      spacing={3}
-      sx={{
-        width: '100%',
-        margin: 0,
-        ...props.sx,
-      }}
-      {...props}
-    >
+    <Grid container spacing={3} {...props}>
       {children}
     </Grid>
   );

@@ -1,54 +1,97 @@
-# React + TypeScript + Vite
+# 부동산 관리 시스템
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+부동산 매물과 계약을 관리하는 웹 애플리케이션입니다.
 
-Currently, two official plugins are available:
+## 기술 스택
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React 18
+- TypeScript
+- Vite
+- Material-UI
+- React Router
+- Zustand
+- Axios
 
-## Expanding the ESLint configuration
+## 시작하기
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 필수 조건
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- Node.js 18 이상
+- npm 9 이상
+
+### 설치
+
+```bash
+# 의존성 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+
+# 빌드
+npm run build
+
+# 린트 검사
+npm run lint
+
+# 타입 체크
+npm run type-check
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 프로젝트 구조
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
 ```
+src/
+├── components/     # 공통 컴포넌트
+├── features/       # 기능별 컴포넌트
+├── hooks/         # 커스텀 훅
+├── layouts/       # 레이아웃 컴포넌트
+├── pages/         # 페이지 컴포넌트
+├── routes/        # 라우팅 설정
+├── services/      # API 서비스
+├── store/         # 상태 관리
+├── types/         # 타입 정의
+└── utils/         # 유틸리티 함수
+```
+
+## 주요 기능
+
+- 매물 관리
+  - 매물 등록/수정/삭제
+  - 매물 검색 및 필터링
+  - 매물 상세 정보 조회
+
+- 계약 관리
+  - 계약 등록/수정/삭제
+  - 계약 상태 관리
+  - 계약서 생성
+
+- 고객 관리
+  - 고객 정보 관리
+  - 고객 이력 조회
+  - 고객 연락처 관리
+
+## 보안
+
+- XSS 방지
+- CSRF 방지
+- 입력값 검증
+- 파일 업로드 제한
+
+## 접근성
+
+- ARIA 레이블 사용
+- 키보드 네비게이션 지원
+- 색상 대비 준수
+- 스크린 리더 지원
+
+## 성능 최적화
+
+- 코드 스플리팅
+- 이미지 최적화
+- 번들 크기 최적화
+- 캐싱 전략
+
+## 라이선스
+
+MIT License

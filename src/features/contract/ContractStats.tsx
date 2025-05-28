@@ -1,5 +1,5 @@
 import { Grid } from '@mui/material';
-import StatCard from '@/components/common/StatCard';
+import StatsCard from '@/components/common/StatsCard';
 import GridContainer from '@/components/common/GridContainer';
 import {
   Assignment as AssignmentIcon,
@@ -26,7 +26,7 @@ const ContractStats = () => {
   return (
     <GridContainer>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard
+        <StatsCard
           title="전체 계약"
           value={mockStats.total.toString()}
           icon={<AssignmentIcon />}
@@ -35,7 +35,7 @@ const ContractStats = () => {
         />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard
+        <StatsCard
           title="진행중"
           value={mockStats.ongoing.toString()}
           icon={<PendingIcon />}
@@ -44,7 +44,7 @@ const ContractStats = () => {
         />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard
+        <StatsCard
           title="완료"
           value={mockStats.completed.toString()}
           icon={<CheckCircleIcon />}
@@ -53,7 +53,7 @@ const ContractStats = () => {
         />
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
-        <StatCard
+        <StatsCard
           title="취소"
           value={mockStats.canceled.toString()}
           icon={<CancelIcon />}

@@ -1,6 +1,6 @@
-import { Box, Card, Typography, Grid, Chip, Button, Divider } from '@mui/material';
-import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Box, Typography, Grid, Chip } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
+import DetailLayout from '../../components/layout/DetailLayout';
 
 // Mock data for development
 const mockContracts = [
@@ -79,140 +79,113 @@ const ContractDetail = () => {
   };
 
   return (
-    <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/contracts')}
-        >
-          목록으로
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<EditIcon />}
-          onClick={() => console.log('Edit contract:', contract.id)}
-        >
-          수정
-        </Button>
-      </Box>
-
-      <Card sx={{ p: 3 }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="h5" gutterBottom>
-            {contract.propertyTitle}
+    <DetailLayout
+      title={contract.propertyTitle}
+      status={contract.status}
+      statusColor={getStatusColor(contract.status)}
+      backUrl="/contracts"
+      onEdit={() => console.log('Edit contract:', contract.id)}
+      onDelete={() => console.log('Delete contract:', contract.id)}
+    >
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Typography variant="h6" gutterBottom>
+            매물 정보
           </Typography>
-          <Chip
-            label={contract.status}
-            color={getStatusColor(contract.status)}
-            sx={{ mr: 1 }}
-          />
-          <Typography variant="body2" color="text.secondary">
-            등록일: {contract.createdAt}
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              유형
+            </Typography>
+            <Typography variant="body1">{contract.propertyType}</Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              크기
+            </Typography>
+            <Typography variant="body1">{contract.propertySize}</Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              위치
+            </Typography>
+            <Typography variant="body1">{contract.propertyLocation}</Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              설명
+            </Typography>
+            <Typography variant="body1">{contract.description}</Typography>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Typography variant="h6" gutterBottom>
+            임차인 정보
           </Typography>
-        </Box>
-
-        <Divider sx={{ my: 3 }} />
-
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>
-              매물 정보
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              이름
             </Typography>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                유형
-              </Typography>
-              <Typography variant="body1">{contract.propertyType}</Typography>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                크기
-              </Typography>
-              <Typography variant="body1">{contract.propertySize}</Typography>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                위치
-              </Typography>
-              <Typography variant="body1">{contract.propertyLocation}</Typography>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                설명
-              </Typography>
-              <Typography variant="body1">{contract.description}</Typography>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12} md={6}>
-            <Typography variant="h6" gutterBottom>
-              임차인 정보
+            <Typography variant="body1">{contract.tenantName}</Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              연락처
             </Typography>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                이름
-              </Typography>
-              <Typography variant="body1">{contract.tenantName}</Typography>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                연락처
-              </Typography>
-              <Typography variant="body1">{contract.tenantPhone}</Typography>
-            </Box>
-            <Box sx={{ mb: 2 }}>
-              <Typography variant="body2" color="text.secondary">
-                이메일
-              </Typography>
-              <Typography variant="body1">{contract.tenantEmail}</Typography>
-            </Box>
-          </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>
-              계약 정보
+            <Typography variant="body1">{contract.tenantPhone}</Typography>
+          </Box>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              이메일
             </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={6} md={3}>
-                <Typography variant="body2" color="text.secondary">
-                  시작일
-                </Typography>
-                <Typography variant="body1">{contract.startDate}</Typography>
-              </Grid>
-              <Grid item xs={6} md={3}>
-                <Typography variant="body2" color="text.secondary">
-                  종료일
-                </Typography>
-                <Typography variant="body1">{contract.endDate}</Typography>
-              </Grid>
-              <Grid item xs={6} md={3}>
-                <Typography variant="body2" color="text.secondary">
-                  보증금
-                </Typography>
-                <Typography variant="body1">{contract.deposit}</Typography>
-              </Grid>
-              <Grid item xs={6} md={3}>
-                <Typography variant="body2" color="text.secondary">
-                  월세
-                </Typography>
-                <Typography variant="body1">{contract.monthlyRent}</Typography>
-              </Grid>
+            <Typography variant="body1">{contract.tenantEmail}</Typography>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            계약 정보
+          </Typography>
+          <Grid container spacing={2}>
+            <Grid item xs={6} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                시작일
+              </Typography>
+              <Typography variant="body1">{contract.startDate}</Typography>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                종료일
+              </Typography>
+              <Typography variant="body1">{contract.endDate}</Typography>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                보증금
+              </Typography>
+              <Typography variant="body1">{contract.deposit}</Typography>
+            </Grid>
+            <Grid item xs={6} md={3}>
+              <Typography variant="body2" color="text.secondary">
+                월세
+              </Typography>
+              <Typography variant="body1">{contract.monthlyRent}</Typography>
             </Grid>
           </Grid>
-
-          <Grid item xs={12}>
-            <Typography variant="h6" gutterBottom>
-              계약 조건
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-              {contract.terms.map((term, index) => (
-                <Chip key={index} label={term} />
-              ))}
-            </Box>
-          </Grid>
         </Grid>
-      </Card>
-    </Box>
+
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            계약 조건
+          </Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {contract.terms.map((term, index) => (
+              <Chip key={index} label={term} />
+            ))}
+          </Box>
+        </Grid>
+      </Grid>
+    </DetailLayout>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, Typography, Grid, Chip, Button } from '@mui/material';
-import { ArrowBack as ArrowBackIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Box, Typography, Grid, Chip } from '@mui/material';
+import DetailLayout from '../../components/layout/DetailLayout';
 
 // Mock data for development
 const mockProperties = [
@@ -59,113 +59,119 @@ const PropertyDetail = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => navigate('/properties')}
-        >
-          목록으로
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<EditIcon />}
-          onClick={() => console.log('Edit property:', property.id)}
-        >
-          수정
-        </Button>
-      </Box>
+    <DetailLayout
+      title={property.title}
+      status={property.status}
+      statusColor={getStatusColor(property.status)}
+      backUrl="/properties"
+      onEdit={() => console.log('Edit property:', property.id)}
+      onDelete={() => console.log('Delete property:', property.id)}
+    >
 
       <Grid container spacing={3}>
-        <Grid item xs={12} md={8}>
-          <Card>
-            <CardContent>
-              <Typography variant="h4" gutterBottom>
-                {property.title}
-              </Typography>
-              <Box sx={{ mb: 2 }}>
-                <Chip
-                  label={property.status}
-                  color={getStatusColor(property.status)}
-                  sx={{ mr: 1 }}
-                />
-                <Chip label={property.type} sx={{ mr: 1 }} />
-                <Chip label={property.location} />
-              </Box>
-              <Typography variant="body1" paragraph>
-                {property.description}
-              </Typography>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="h6" gutterBottom>
-                  주요 특징
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {property.features.map((feature, index) => (
-                    <Chip key={index} label={feature} />
-                  ))}
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Grid item xs={12} md={6}>
+      <Box sx={{ mb: 2 }}>
+        <Chip label={property.type} sx={{ mr: 1 }} />
+        <Chip label={property.location} />
+      </Box>
+      <Typography variant="body1" paragraph>
+        {property.description}
+      </Typography>
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="h6" gutterBottom>
+          주요 특징
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+          {property.features.map((feature, index) => (
+            <Chip key={index} label={feature} />
+          ))}
+        </Box>
+      </Box>
+      </Grid>
 
         <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                매물 정보
-              </Typography>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    가격
-                  </Typography>
-                  <Typography variant="body1">{property.price}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    면적
-                  </Typography>
-                  <Typography variant="body1">{property.size}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    등록일
-                  </Typography>
-                  <Typography variant="body1">{property.createdAt}</Typography>
-                </Grid>
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              매물 정보
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  가격
+                </Typography>
+                <Typography variant="body1">{property.price}</Typography>
               </Grid>
-            </CardContent>
-          </Card>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  면적
+                </Typography>
+                <Typography variant="body1">{property.size}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  등록일
+                </Typography>
+                <Typography variant="body1">{property.createdAt}</Typography>
+              </Grid>
+            </Grid>
+          </Box>
         </Grid>
 
         <Grid item xs={12}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                매물 사진
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2 }}>
-                {property.images.map((image, index) => (
-                  <Box
-                    key={index}
-                    component="img"
-                    src={image}
-                    alt={`Property ${index + 1}`}
-                    sx={{
-                      width: 300,
-                      height: 200,
-                      objectFit: 'cover',
-                      borderRadius: 1,
-                    }}
-                  />
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
+          <Box>
+            <Typography variant="h6" gutterBottom>
+              매물 사진
+            </Typography>
+            <Box 
+              sx={{ 
+                display: 'flex',
+                gap: 2,
+                overflowX: 'auto',
+                pb: 2,
+                '&::-webkit-scrollbar': {
+                  height: '8px',
+                },
+                '&::-webkit-scrollbar-track': {
+                  background: '#f1f1f1',
+                  borderRadius: '4px',
+                },
+                '&::-webkit-scrollbar-thumb': {
+                  background: '#888',
+                  borderRadius: '4px',
+                  '&:hover': {
+                    background: '#555',
+                  },
+                },
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#888 #f1f1f1',
+              }}
+            >
+              {property.images.map((image, index) => (
+                <Box
+                  key={index}
+                  component="img"
+                  src={image}
+                  alt={`Property ${index + 1}`}
+                  sx={{
+                    width: { xs: 280, sm: 320, md: 360 },
+                    height: { xs: 180, sm: 200, md: 240 },
+                    objectFit: 'cover',
+                    borderRadius: 1,
+                    flexShrink: 0,
+                    boxShadow: 1,
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'scale(1.02)',
+                    },
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
         </Grid>
-      </Grid>
-    </Box>
+    </Grid>
+
+    </DetailLayout>
   );
 };
 

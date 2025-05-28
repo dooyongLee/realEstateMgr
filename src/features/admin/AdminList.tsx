@@ -18,7 +18,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import SearchPanel from '@/components/common/grid/SearchPanel';
+import SearchPanel from '@/components/common/search/SearchPanel';
 
 // 임시 목업 데이터
 const mockCustomers = [

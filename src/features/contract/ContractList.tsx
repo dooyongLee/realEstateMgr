@@ -1,7 +1,8 @@
 import { Box, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import SearchPanel from '@/components/common/grid/SearchPanel';
+import SearchPanel from '@/components/common/search/SearchPanel';
+import { contractSearchConditions } from '@/components/common/search/searchConditions';
 
 // Mock data for development
 const mockContracts = [
@@ -58,9 +59,12 @@ const ContractList = () => {
   return (
     <Card sx={{ mt: 3 }}>
       <SearchPanel
-        title="계약"
+        conditions={contractSearchConditions}
+        placeholder="계약번호, 고객명으로 검색"
         onAdd={() => console.log('Add contract')}
-        onSearch={handleSearch}
+        onSearch={(value, conditions) => {
+          // 검색 로직 구현
+        }}
       />
       <TableContainer>
         <Table>

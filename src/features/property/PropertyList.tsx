@@ -1,7 +1,8 @@
 import { Box, Card, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, Chip } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import SearchPanel from '@/components/common/grid/SearchPanel';
+import SearchPanel from '@/components/common/search/SearchPanel';
+import { propertySearchConditions } from '@/components/common/search/searchConditions';
 
 // Mock data for development
 const mockProperties = [
@@ -58,9 +59,12 @@ const PropertyList = () => {
   return (
     <Card sx={{ mt: 3 }}>
       <SearchPanel
-        title="매물"
-        onAdd={handleAdd}
-        onSearch={handleSearch}
+        conditions={propertySearchConditions}
+        placeholder="매물명, 주소로 검색"
+        onAdd={() => console.log('Add property')}
+        onSearch={(conditions) => {
+          console.log(JSON.stringify(conditions));
+        }}
       />
       <TableContainer>
         <Table>

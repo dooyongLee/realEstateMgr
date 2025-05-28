@@ -18,7 +18,8 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
 } from '@mui/icons-material';
-import SearchPanel from '@/components/common/grid/SearchPanel';
+import SearchPanel from '@/components/common/search/SearchPanel';
+import { customerSearchConditions } from '@/components/common/search/searchConditions';
 
 // 임시 목업 데이터
 const mockCustomers = [
@@ -65,9 +66,9 @@ const CustomerList = () => {
     setPage(0);
   };
 
-  const handleSearch = (value: string) => {
-    console.log('Search:', value);
-  };
+  // const handleSearch = (value: string) => {
+  //   console.log('Search:', value);
+  // };
 
   const handleRowClick = (id: number) => {
     navigate(`/customers/${id}`);
@@ -75,11 +76,14 @@ const CustomerList = () => {
 
   return (
     <Card sx={{ mt: 3 }}>
-      <SearchPanel
-        title="고객"
-        onAdd={() => console.log('Add customer')}
-        onSearch={handleSearch}
-      />
+        <SearchPanel
+          conditions={customerSearchConditions}
+          placeholder="고객명, 연락처로 검색"
+          onSearch={(conditions) => {
+            console.log(JSON.stringify(conditions));
+          }}
+          onAdd={() => console.log('Add customer')}
+        />
       <TableContainer>
         <Table>
           <TableHead>

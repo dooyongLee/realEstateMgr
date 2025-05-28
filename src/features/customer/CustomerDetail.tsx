@@ -60,20 +60,17 @@ const CustomerDetail = () => {
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
+      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between',alignItems: 'center', gap: 2 }}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={handleBack}
-          variant="outlined"
         >
           목록으로
         </Button>
-        <Box sx={{ flexGrow: 1 }} />
         <Button
-          startIcon={<EditIcon />}
-          onClick={handleEdit}
           variant="contained"
-          color="primary"
+          startIcon={<EditIcon />}
+          onClick={() => console.log('Edit customer:')}
         >
           수정
         </Button>

@@ -1,158 +1,99 @@
-import { Box, Button, Card, CardContent, Typography, Container, useTheme, useMediaQuery, Paper } from '@mui/material';
-import { ArrowBack as ArrowBackIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import React from 'react';
+import { Box, Paper, Typography, IconButton, Tooltip } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon, ArrowBack as ArrowBackIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { memo } from 'react';
 
 interface DetailLayoutProps {
   title: string;
   status?: string;
-  statusColor?: 'primary' | 'warning' | 'success' | 'error' | 'default';
-  backUrl: string;
+  statusColor?: 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
+  backUrl?: string;
   onEdit?: () => void;
   onDelete?: () => void;
   children: React.ReactNode;
 }
 
-const DetailLayout = ({
+const DetailLayout: React.FC<DetailLayoutProps> = ({
   title,
   status,
-  statusColor,
+  statusColor = 'primary',
   backUrl,
   onEdit,
   onDelete,
-  children,
-}: DetailLayoutProps) => {
+  children
+}) => {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <Container 
-      maxWidth="xl" 
+    <Box 
       sx={{ 
-        py: { xs: 2, sm: 3, md: 4 },
-        px: { xs: 2, sm: 3 },
+        minHeight: '100vh',
+        width: '100%',
+        overflow: 'auto',
+        position: 'relative',
+        bgcolor: 'background.default'
       }}
     >
-      {/* Header Section */}
-      <Paper 
-        elevation={0}
+      <Box 
         sx={{ 
-          mb: 3,
-          p: { xs: 2, sm: 3 },
-          backgroundColor: 'background.paper',
-          borderRadius: 2,
-          border: `1px solid ${theme.palette.divider}`,
+          p: 3,
+          maxWidth: '1200px',
+          mx: 'auto',
+          width: '100%'
         }}
       >
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: { xs: 'column', sm: 'row' },
-          justifyContent: 'space-between', 
-          alignItems: { xs: 'stretch', sm: 'center' },
-          gap: 2,
-        }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(backUrl)}
-            variant="outlined"
-            sx={{ 
-              width: { xs: '100%', sm: 'auto' },
-              minWidth: { sm: '120px' },
-              borderRadius: 2,
-              textTransform: 'none',
-              fontWeight: 600,
-            }}
-          >
-            목록으로
-          </Button>
-          <Box sx={{ 
-            display: 'flex', 
-            gap: 2,
-            width: { xs: '100%', sm: 'auto' }
-          }}>
-            {onEdit && (
-              <Button
-                variant="contained"
-                startIcon={<EditIcon />}
-                onClick={onEdit}
-                sx={{ 
-                  width: { xs: '100%', sm: 'auto' },
-                  minWidth: { sm: '100px' },
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                }}
+        <Paper 
+          sx={{ 
+            p: 3,
+            mb: 3,
+            minHeight: '200px',
+            display: 'flex',
+            flexDirection: 'column'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+            {backUrl && (
+              <Tooltip title="뒤로 가기">
+                <IconButton 
+                  onClick={() => navigate(backUrl)}
+                  sx={{ mr: 2 }}
+                >
+                  <ArrowBackIcon />
+                </IconButton>
+              </Tooltip>
+            )}
+            <Typography variant="h4" sx={{ flex: 1 }}>
+              {title}
+            </Typography>
+            {status && (
+              <Typography 
+                variant="subtitle1" 
+                color={statusColor}
+                sx={{ mr: 2 }}
               >
-                수정
-              </Button>
+                {status}
+              </Typography>
+            )}
+            {onEdit && (
+              <Tooltip title="수정">
+                <IconButton onClick={onEdit} sx={{ mr: 1 }}>
+                  <EditIcon />
+                </IconButton>
+              </Tooltip>
             )}
             {onDelete && (
-              <Button
-                variant="contained"
-                color="error"
-                startIcon={<DeleteIcon />}
-                onClick={onDelete}
-                sx={{ 
-                  width: { xs: '100%', sm: 'auto' },
-                  minWidth: { sm: '100px' },
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontWeight: 600,
-                }}
-              >
-                삭제
-              </Button>
+              <Tooltip title="삭제">
+                <IconButton onClick={onDelete} color="error">
+                  <DeleteIcon />
+                </IconButton>
+              </Tooltip>
             )}
           </Box>
-        </Box>
-      </Paper>
-
-      {/* Content Section */}
-      <Paper 
-        elevation={0}
-        sx={{ 
-          p: { xs: 2, sm: 3, md: 4 },
-          backgroundColor: 'background.paper',
-          borderRadius: 2,
-          border: `1px solid ${theme.palette.divider}`,
-        }}
-      >
-        <Box sx={{ mb: 4 }}>
-          <Typography 
-            variant="h4" 
-            gutterBottom
-            sx={{ 
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-              fontWeight: 700,
-              color: 'text.primary',
-              mb: 2,
-            }}
-          >
-            {title}
-          </Typography>
-          {status && (
-            <Typography
-              variant="body1"
-              color={statusColor || 'text.primary'}
-              sx={{ 
-                display: 'inline-block',
-                px: 2,
-                py: 0.75,
-                borderRadius: 2,
-                backgroundColor: theme.palette.grey[100],
-                fontWeight: 600,
-                fontSize: '0.875rem',
-              }}
-            >
-              {status}
-            </Typography>
-          )}
-        </Box>
-        {children}
-      </Paper>
-    </Container>
+          {children}
+        </Paper>
+      </Box>
+    </Box>
   );
 };
 
-export default memo(DetailLayout); 
+export default DetailLayout; 

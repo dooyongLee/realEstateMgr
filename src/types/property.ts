@@ -1,15 +1,17 @@
-export type PropertyType = 'sale' | 'rent' | 'monthly';
+export type PropertyType = 'APARTMENT' | 'OFFICETEL' | 'HOUSE' | 'COMMERCIAL';
 export type PropertyStatus = 'available' | 'sold';
 
 export interface Property {
-  id: number;
-  title: string;
+  id: string;
   type: PropertyType;
+  name: string;
   price: number;
+  area: number;
+  floor: number;
+  features: string[];
   address: string;
-  description: string;
-  status: PropertyStatus;
+  description?: string;
+  images?: string[];
   createdAt: string;
   updatedAt: string;
-  images?: string[];
 } 

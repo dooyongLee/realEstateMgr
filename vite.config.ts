@@ -25,6 +25,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
+      '/api/real-estate': {
+        target: 'http://openapi.molit.go.kr',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/real-estate/, ''),
+      },
     },
   },
   build: {

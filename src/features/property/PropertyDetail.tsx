@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Grid, Chip } from '@mui/material';
 import DetailLayout from '../../components/layout/DetailLayout';
+import PropertyImageGallery from '../../components/layout/PropertyImageGallery';
 
 // Mock data for development
 const mockProperties = [
@@ -15,7 +16,7 @@ const mockProperties = [
     createdAt: '2024-03-15',
     description: '강남역 도보 5분 거리에 위치한 프리미엄 아파트입니다. 넓은 평수와 좋은 조망을 자랑합니다.',
     features: ['주차 2대', '엘리베이터', 'CCTV', '24시간 경비'],
-    images: ['https://picsum.photos/800/400?random=1'],
+    images: ['https://picsum.photos/800/400?random=1', 'https://picsum.photos/800/400?random=3', 'https://picsum.photos/800/400?random=4', 'https://picsum.photos/800/400?random=5', 'https://picsum.photos/800/400?random=6'],
   },
   {
     id: 2,
@@ -67,27 +68,26 @@ const PropertyDetail = () => {
       onEdit={() => console.log('Edit property:', property.id)}
       onDelete={() => console.log('Delete property:', property.id)}
     >
-
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-      <Box sx={{ mb: 2 }}>
-        <Chip label={property.type} sx={{ mr: 1 }} />
-        <Chip label={property.location} />
-      </Box>
-      <Typography variant="body1" paragraph>
-        {property.description}
-      </Typography>
-      <Box sx={{ mb: 2 }}>
-        <Typography variant="h6" gutterBottom>
-          주요 특징
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-          {property.features.map((feature, index) => (
-            <Chip key={index} label={feature} />
-          ))}
-        </Box>
-      </Box>
-      </Grid>
+          <Box sx={{ mb: 2 }}>
+            <Chip label={property.type} sx={{ mr: 1 }} />
+            <Chip label={property.location} />
+          </Box>
+          <Typography variant="body1" paragraph>
+            {property.description}
+          </Typography>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="h6" gutterBottom>
+              주요 특징
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+              {property.features.map((feature, index) => (
+                <Chip key={index} label={feature} />
+              ))}
+            </Box>
+          </Box>
+        </Grid>
 
         <Grid item xs={12} md={4}>
           <Box>
@@ -118,59 +118,9 @@ const PropertyDetail = () => {
         </Grid>
 
         <Grid item xs={12}>
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              매물 사진
-            </Typography>
-            <Box 
-              sx={{ 
-                display: 'flex',
-                gap: 2,
-                overflowX: 'auto',
-                pb: 2,
-                '&::-webkit-scrollbar': {
-                  height: '8px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: '#f1f1f1',
-                  borderRadius: '4px',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: '#888',
-                  borderRadius: '4px',
-                  '&:hover': {
-                    background: '#555',
-                  },
-                },
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#888 #f1f1f1',
-              }}
-            >
-              {property.images.map((image, index) => (
-                <Box
-                  key={index}
-                  component="img"
-                  src={image}
-                  alt={`Property ${index + 1}`}
-                  sx={{
-                    width: { xs: 280, sm: 320, md: 360 },
-                    height: { xs: 180, sm: 200, md: 240 },
-                    objectFit: 'cover',
-                    borderRadius: 1,
-                    flexShrink: 0,
-                    boxShadow: 1,
-                    transition: 'transform 0.2s',
-                    '&:hover': {
-                      transform: 'scale(1.02)',
-                    },
-                  }}
-                />
-              ))}
-            </Box>
-          </Box>
+          <PropertyImageGallery images={property.images} />
         </Grid>
-    </Grid>
-
+      </Grid>
     </DetailLayout>
   );
 };

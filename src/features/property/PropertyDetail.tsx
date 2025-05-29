@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Box, Typography, Grid, Chip } from '@mui/material';
 import DetailLayout from '../../components/layout/DetailLayout';
 import PropertyImageGallery from '../../components/layout/PropertyImageGallery';
+import KakaoMap from '../../components/common/KakaoMap';
 
 // Mock data for development
 const mockProperties = [
@@ -13,6 +14,8 @@ const mockProperties = [
     size: '120평',
     status: '판매중',
     location: '서울시 강남구',
+    latitude: 37.517235,
+    longitude: 127.047325,
     createdAt: '2024-03-15',
     description: '강남역 도보 5분 거리에 위치한 프리미엄 아파트입니다. 넓은 평수와 좋은 조망을 자랑합니다.',
     features: ['주차 2대', '엘리베이터', 'CCTV', '24시간 경비'],
@@ -26,6 +29,8 @@ const mockProperties = [
     size: '80평',
     status: '계약중',
     location: '서울시 송파구',
+    latitude: 37.5139,
+    longitude: 127.1006,
     createdAt: '2024-03-14',
     description: '잠실역 인근의 고급 오피스텔입니다. 최신 인테리어와 편리한 교통을 제공합니다.',
     features: ['주차 1대', '엘리베이터', 'CCTV', '24시간 경비'],
@@ -114,6 +119,19 @@ const PropertyDetail = () => {
                 <Typography variant="body1">{property.createdAt}</Typography>
               </Grid>
             </Grid>
+          </Box>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6" gutterBottom>
+              위치
+            </Typography>
+            <KakaoMap
+              latitude={property.latitude}
+              longitude={property.longitude}
+              height="400px"
+            />
           </Box>
         </Grid>
 

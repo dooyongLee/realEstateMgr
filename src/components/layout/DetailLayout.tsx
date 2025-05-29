@@ -1,6 +1,7 @@
-import { Box, Button, Card, CardContent, Grid, Typography, Container } from '@mui/material';
+import { Box, Button, Card, CardContent, Typography, Container, useTheme, useMediaQuery, Paper } from '@mui/material';
 import { ArrowBack as ArrowBackIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+import { memo } from 'react';
 
 interface DetailLayoutProps {
   title: string;
@@ -22,28 +23,46 @@ const DetailLayout = ({
   children,
 }: DetailLayoutProps) => {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <Container maxWidth="xl" sx={{ height: '100%' }}>
-      <Box sx={{ 
-        p: { xs: 2, sm: 3 },
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
+    <Container 
+      maxWidth="xl" 
+      sx={{ 
+        py: { xs: 2, sm: 3, md: 4 },
+        px: { xs: 2, sm: 3 },
+      }}
+    >
+      {/* Header Section */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          mb: 3,
+          p: { xs: 2, sm: 3 },
+          backgroundColor: 'background.paper',
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+        }}
+      >
         <Box sx={{ 
-          mb: 3, 
           display: 'flex', 
           flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-between', 
           alignItems: { xs: 'stretch', sm: 'center' },
           gap: 2,
-          flexShrink: 0
         }}>
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate(backUrl)}
-            fullWidth={false}
+            variant="outlined"
+            sx={{ 
+              width: { xs: '100%', sm: 'auto' },
+              minWidth: { sm: '120px' },
+              borderRadius: 2,
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
           >
             목록으로
           </Button>
@@ -57,7 +76,13 @@ const DetailLayout = ({
                 variant="contained"
                 startIcon={<EditIcon />}
                 onClick={onEdit}
-                fullWidth={false}
+                sx={{ 
+                  width: { xs: '100%', sm: 'auto' },
+                  minWidth: { sm: '100px' },
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                }}
               >
                 수정
               </Button>
@@ -68,64 +93,66 @@ const DetailLayout = ({
                 color="error"
                 startIcon={<DeleteIcon />}
                 onClick={onDelete}
-                fullWidth={false}
+                sx={{ 
+                  width: { xs: '100%', sm: 'auto' },
+                  minWidth: { sm: '100px' },
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  fontWeight: 600,
+                }}
               >
                 삭제
               </Button>
             )}
           </Box>
         </Box>
+      </Paper>
 
-        <Grid container spacing={3} sx={{ flex: 1, minHeight: 0 }}>
-          <Grid item xs={12}>
-            <Card sx={{ 
-              width: '100%',
-              height: '100%',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <CardContent sx={{ 
-                flex: 1,
-                overflow: 'auto',
-                '&::-webkit-scrollbar': {
-                  width: '8px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: '#f1f1f1',
-                  borderRadius: '4px',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: '#888',
-                  borderRadius: '4px',
-                  '&:hover': {
-                    background: '#555',
-                  },
-                },
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#888 #f1f1f1',
-              }}>
-                <Typography variant="h4" gutterBottom>
-                  {title}
-                </Typography>
-                {status && (
-                  <Box sx={{ mb: 2 }}>
-                    <Typography
-                      variant="body1"
-                      color={statusColor || 'text.primary'}
-                      sx={{ fontWeight: 'bold' }}
-                    >
-                      {status}
-                    </Typography>
-                  </Box>
-                )}
-                {children}
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-      </Box>
+      {/* Content Section */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          p: { xs: 2, sm: 3, md: 4 },
+          backgroundColor: 'background.paper',
+          borderRadius: 2,
+          border: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Box sx={{ mb: 4 }}>
+          <Typography 
+            variant="h4" 
+            gutterBottom
+            sx={{ 
+              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
+              fontWeight: 700,
+              color: 'text.primary',
+              mb: 2,
+            }}
+          >
+            {title}
+          </Typography>
+          {status && (
+            <Typography
+              variant="body1"
+              color={statusColor || 'text.primary'}
+              sx={{ 
+                display: 'inline-block',
+                px: 2,
+                py: 0.75,
+                borderRadius: 2,
+                backgroundColor: theme.palette.grey[100],
+                fontWeight: 600,
+                fontSize: '0.875rem',
+              }}
+            >
+              {status}
+            </Typography>
+          )}
+        </Box>
+        {children}
+      </Paper>
     </Container>
   );
 };
 
-export default DetailLayout; 
+export default memo(DetailLayout); 

@@ -1,52 +1,12 @@
-import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Button,
-  TextField,
-  MenuItem,
-  Typography,
-  Stepper,
-  Step,
-  StepLabel,
-  Paper,
-  Divider,
-  InputAdornment,
-  Alert,
-  CircularProgress,
-  Grid,
-  Card,
-  CardContent,
-} from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import KakaoAddressSearch from '../../components/common/KakaoAddressSearch';
-import DatePicker from '../../components/common/DatePicker';
-import FileUpload from '../../components/common/FileUpload';
-import { formatArea } from '../../utils/areaConverter';
-import {
-  DirectionsBus,
-  LocalHospital,
-  School,
-  Store,
-  Train,
-  Elevator,
-  LocalParking,
-  Security,
-  Videocam,
-  Balcony,
-  AcUnit,
-  LocalLaundryService,
-  Kitchen,
-  LocalGasStation,
-  ElectricBolt,
-  MenuBook,
-  Checkroom,
-  Hotel,
-  Pets,
-  VolumeOff,
-} from '@mui/icons-material';
+import { Grid, TextField, MenuItem, InputAdornment } from '@mui/material';
+import EditFormLayout from '@/components/layout/EditFormLayout';
+import KakaoAddressSearch from '@/components/common/KakaoAddressSearch';
+import DatePicker from '@/components/common/DatePicker';
+import FileUpload from '@/components/common/FileUpload';
 
 interface FormValues {
   title: string;
@@ -73,9 +33,28 @@ const propertyTypes = [
 ];
 
 const propertyStatuses = [
+  { value: 'SALE', label: '매매' },
   { value: 'AVAILABLE', label: '임대 가능' },
   { value: 'RENTED', label: '임대 중' },
-  { value: 'MAINTENANCE', label: '보수 중' },
+];
+
+const propertyFeatures = [
+  { value: 'NEAR_STATION', label: '역세권' },
+  { value: 'NEAR_SCHOOL', label: '학교근처' },
+  { value: 'QUIET_AREA', label: '조용한 동네' },
+  { value: 'PARKING', label: '주차 편리' },
+  { value: 'ELEVATOR', label: '엘리베이터' },
+  { value: 'SECURITY', label: '보안시설' },
+  { value: 'PET_FRIENDLY', label: '반려동물 가능' },
+  { value: 'BALCONY', label: '베란다' },
+  { value: 'AIR_CONDITIONER', label: '에어컨' },
+  { value: 'WASHING_MACHINE', label: '세탁기' },
+  { value: 'REFRIGERATOR', label: '냉장고' },
+  { value: 'GAS_RANGE', label: '가스레인지' },
+  { value: 'INDUCTION', label: '인덕션' },
+  { value: 'DESK', label: '책상' },
+  { value: 'CLOSET', label: '옷장' },
+  { value: 'BED', label: '침대' },
 ];
 
 const steps = ['기본 정보', '상세 정보', '추가 정보'];
@@ -102,43 +81,14 @@ const validationSchema = Yup.object({
   moveInDate: Yup.date()
     .transform((value) => (value === '' ? undefined : value))
     .required('입주 가능일을 선택해주세요'),
-  features: Yup.array().of(Yup.string()).max(200, '200자 이내로 입력해주세요'),
+  features: Yup.array().of(Yup.string()).max(10, '최대 10개의 특징만 선택할 수 있습니다'),
   description: Yup.string().max(1000, '1000자 이내로 입력해주세요'),
   images: Yup.array().of(Yup.mixed()).max(10, '최대 10개의 이미지만 업로드할 수 있습니다'),
 });
 
-const propertyFeatures = [
-  // 위치/교통
-  { category: 'location', value: 'NEAR_STATION', label: '역세권', icon: <Train /> },
-  { category: 'location', value: 'NEAR_BUS', label: '버스정류장', icon: <DirectionsBus /> },
-  { category: 'location', value: 'NEAR_SCHOOL', label: '학교근처', icon: <School /> },
-  { category: 'location', value: 'NEAR_MART', label: '마트근처', icon: <Store /> },
-  { category: 'location', value: 'NEAR_HOSPITAL', label: '병원근처', icon: <LocalHospital /> },
-  
-  // 건물/시설
-  { category: 'building', value: 'ELEVATOR', label: '엘리베이터', icon: <Elevator /> },
-  { category: 'building', value: 'PARKING', label: '주차가능', icon: <LocalParking /> },
-  { category: 'building', value: 'SECURITY', label: '보안시설', icon: <Security /> },
-  { category: 'building', value: 'CCTV', label: 'CCTV', icon: <Videocam /> },
-  { category: 'building', value: 'BALCONY', label: '베란다', icon: <Balcony /> },
-  
-  // 인테리어/가전
-  { category: 'interior', value: 'AIR_CONDITIONER', label: '에어컨', icon: <AcUnit /> },
-  { category: 'interior', value: 'WASHING_MACHINE', label: '세탁기', icon: <LocalLaundryService /> },
-  { category: 'interior', value: 'REFRIGERATOR', label: '냉장고', icon: <Kitchen /> },
-  { category: 'interior', value: 'GAS_RANGE', label: '가스레인지', icon: <LocalGasStation /> },
-  { category: 'interior', value: 'INDUCTION', label: '인덕션', icon: <ElectricBolt /> },
-  
-  // 생활편의
-  { category: 'convenience', value: 'DESK', label: '책상', icon: <MenuBook /> },
-  { category: 'convenience', value: 'CLOSET', label: '옷장', icon: <Checkroom /> },
-  { category: 'convenience', value: 'BED', label: '침대', icon: <Hotel /> },
-  { category: 'convenience', value: 'PET_FRIENDLY', label: '반려동물', icon: <Pets /> },
-  { category: 'convenience', value: 'QUIET_AREA', label: '조용한 동네', icon: <VolumeOff /> },
-];
-
-const PropertyForm = () => {
+const PropertyEdit = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -169,29 +119,39 @@ const PropertyForm = () => {
         console.log('Form submitted:', values);
         navigate('/properties');
       } catch (err) {
-        setError('매물 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+        setError('매물 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
       } finally {
         setIsSubmitting(false);
       }
     },
   });
 
-  const handleAddressSelect = useCallback((address: string, latitude: number, longitude: number) => {
+  useEffect(() => {
+    // API 호출하여 매물 데이터 가져오기
+    const fetchProperty = async () => {
+      try {
+        // const response = await api.get(`/properties/${id}`);
+        // formik.setValues(response.data);
+      } catch (err) {
+        setError('매물 정보를 불러오는데 실패했습니다.');
+      }
+    };
+
+    if (id) {
+      fetchProperty();
+    }
+  }, [id]);
+
+  const handleAddressSelect = (address: string, latitude: number, longitude: number) => {
     formik.setFieldValue('address', address);
     formik.setFieldValue('latitude', latitude);
     formik.setFieldValue('longitude', longitude);
-  }, [formik]);
+  };
 
-  const handleNext = useCallback(() => {
+  const handleNext = () => {
     const currentStepFields = getStepFields(activeStep);
-    console.log('Current step fields:', currentStepFields);
-    console.log('Current form values:', formik.values);
-
-    // 현재 단계의 필드들만 검증
     const currentStepValues = currentStepFields.reduce<Partial<FormValues>>((acc, field) => {
-      if (field in formik.values) {
-        acc[field] = formik.values[field];
-      }
+      acc[field] = formik.values[field];
       return acc;
     }, {});
 
@@ -205,30 +165,25 @@ const PropertyForm = () => {
       }, {})
     );
 
-    console.log('Validating with schema:', currentStepSchema);
-
     currentStepSchema
       .validate(currentStepValues, { abortEarly: false })
       .then(() => {
-        console.log('Validation successful, moving to next step');
         setActiveStep((prev) => prev + 1);
       })
       .catch((err: Yup.ValidationError) => {
-        console.log('Validation errors:', err.inner);
         const errors = err.inner.reduce<Record<string, string>>((acc, error) => {
           if (error.path) {
             acc[error.path] = error.message;
           }
           return acc;
         }, {});
-        console.log('Setting form errors:', errors);
         formik.setErrors(errors);
       });
-  }, [activeStep, formik]);
+  };
 
-  const handleBack = useCallback(() => {
+  const handleBack = () => {
     setActiveStep((prev) => prev - 1);
-  }, []);
+  };
 
   const getStepFields = (step: number): (keyof FormValues)[] => {
     switch (step) {
@@ -302,9 +257,6 @@ const PropertyForm = () => {
               </TextField>
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="subtitle1" gutterBottom>
-                주소
-              </Typography>
               <KakaoAddressSearch
                 value={formik.values.address}
                 onAddressSelect={handleAddressSelect}
@@ -320,7 +272,8 @@ const PropertyForm = () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="월세/전세 금액"
+                label="가격"
+                type="number"
                 name="price"
                 value={formik.values.price}
                 onChange={(e) => {
@@ -333,7 +286,9 @@ const PropertyForm = () => {
                 error={formik.touched.price && Boolean(formik.errors.price)}
                 helperText={formik.touched.price && formik.errors.price}
                 required
-                type="text"
+                inputProps={{
+                  onFocus: (e) => e.target.select()
+                }}
                 InputProps={{
                   endAdornment: <InputAdornment position="end">만원</InputAdornment>,
                 }}
@@ -354,13 +309,7 @@ const PropertyForm = () => {
                 }}
                 onBlur={formik.handleBlur}
                 error={formik.touched.size && Boolean(formik.errors.size)}
-                helperText={
-                  formik.touched.size && formik.errors.size
-                    ? formik.errors.size
-                    : formik.values.size
-                    ? formatArea(Number(formik.values.size))
-                    : undefined
-                }
+                helperText={formik.touched.size && formik.errors.size}
                 required
                 inputProps={{
                   onFocus: (e) => e.target.select()
@@ -374,6 +323,7 @@ const PropertyForm = () => {
               <TextField
                 fullWidth
                 label="관리비"
+                type="number"
                 name="maintenanceFee"
                 value={formik.values.maintenanceFee}
                 onChange={(e) => {
@@ -385,7 +335,9 @@ const PropertyForm = () => {
                 onBlur={formik.handleBlur}
                 error={formik.touched.maintenanceFee && Boolean(formik.errors.maintenanceFee)}
                 helperText={formik.touched.maintenanceFee && formik.errors.maintenanceFee}
-                type="text"
+                inputProps={{
+                  onFocus: (e) => e.target.select()
+                }}
                 InputProps={{
                   endAdornment: <InputAdornment position="end">만원</InputAdornment>,
                 }}
@@ -412,7 +364,7 @@ const PropertyForm = () => {
                 error={formik.touched.moveInDate && Boolean(formik.errors.moveInDate)}
                 helperText={formik.touched.moveInDate && formik.errors.moveInDate}
                 required
-                minDate={new Date()} // 오늘 이전 날짜는 선택 불가
+                minDate={new Date()}
               />
             </Grid>
           </Grid>
@@ -421,79 +373,26 @@ const PropertyForm = () => {
         return (
           <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                특징 선택
-              </Typography>
-              <Box sx={{ mb: 2 }}>
-                {['location', 'building', 'interior', 'convenience'].map((category) => (
-                  <Box key={category} sx={{ mb: 4 }}>
-                    <Typography 
-                      variant="subtitle1" 
-                      sx={{ 
-                        mb: 2, 
-                        fontWeight: 'medium',
-                        color: 'text.secondary',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                      }}
-                    >
-                      {category === 'location' && '위치/교통'}
-                      {category === 'building' && '건물/시설'}
-                      {category === 'interior' && '인테리어/가전'}
-                      {category === 'convenience' && '생활편의'}
-                    </Typography>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      flexWrap: 'wrap', 
-                      gap: 1.5,
-                      '& .MuiButton-root': {
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        minWidth: 'auto',
-                        px: 2,
-                        py: 1.5,
-                        transition: 'all 0.2s',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: 2,
-                        },
-                        '& .MuiButton-startIcon': {
-                          marginRight: 1,
-                          '& .MuiSvgIcon-root': {
-                            fontSize: 20,
-                          },
-                        },
-                      },
-                    }}>
-                      {propertyFeatures
-                        .filter((feature) => feature.category === category)
-                        .map((feature) => (
-                          <Button
-                            key={feature.value}
-                            variant={formik.values.features.includes(feature.value) ? 'contained' : 'outlined'}
-                            onClick={() => {
-                              const newFeatures = formik.values.features.includes(feature.value)
-                                ? formik.values.features.filter((f: string) => f !== feature.value)
-                                : [...formik.values.features, feature.value];
-                              formik.setFieldValue('features', newFeatures);
-                            }}
-                            startIcon={feature.icon}
-                            sx={{
-                              ...(formik.values.features.includes(feature.value) && {
-                                backgroundColor: 'primary.main',
-                                color: 'white',
-                                '&:hover': {
-                                  backgroundColor: 'primary.dark',
-                                },
-                              }),
-                            }}
-                          >
-                            {feature.label}
-                          </Button>
-                        ))}
-                    </Box>
-                  </Box>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {propertyFeatures.map((feature) => (
+                  <Button
+                    key={feature.value}
+                    variant={formik.values.features.includes(feature.value) ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      const newFeatures = formik.values.features.includes(feature.value)
+                        ? formik.values.features.filter((f) => f !== feature.value)
+                        : [...formik.values.features, feature.value];
+                      formik.setFieldValue('features', newFeatures);
+                    }}
+                    sx={{
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      minWidth: 'auto',
+                      px: 2,
+                    }}
+                  >
+                    {feature.label}
+                  </Button>
                 ))}
               </Box>
               {formik.touched.features && formik.errors.features && (
@@ -518,14 +417,11 @@ const PropertyForm = () => {
               />
             </Grid>
             <Grid item xs={12}>
-              <Typography variant="subtitle1" gutterBottom>
-                매물 사진
-              </Typography>
               <FileUpload
                 files={formik.values.images}
                 onChange={(files) => formik.setFieldValue('images', files)}
                 error={formik.touched.images && Boolean(formik.errors.images)}
-                helperText={formik.touched.images && formik.errors.images ? String(formik.errors.images) : undefined}
+                helperText={typeof formik.errors.images === 'string' ? formik.errors.images : undefined}
                 maxFiles={10}
                 accept="image/*"
               />
@@ -538,63 +434,19 @@ const PropertyForm = () => {
   };
 
   return (
-    <Box component="form" onSubmit={formik.handleSubmit} sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
-      <Card elevation={3}>
-        <CardContent>
-          <Typography variant="h5" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
-            매물 등록
-          </Typography>
-          
-          <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
-
-          <Box sx={{ mb: 4 }}>
-            {renderStepContent(activeStep)}
-          </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-            <Button
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              이전
-            </Button>
-            <Box>
-              {activeStep === steps.length - 1 ? (
-                <LoadingButton
-                  type="submit"
-                  variant="contained"
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
-                >
-                  등록하기
-                </LoadingButton>
-              ) : (
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                >
-                  다음
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
-    </Box>
+    <EditFormLayout
+      title="매물 수정"
+      steps={steps}
+      activeStep={activeStep}
+      error={error}
+      isSubmitting={isSubmitting}
+      onBack={activeStep > 0 ? handleBack : undefined}
+      onNext={activeStep < steps.length - 1 ? handleNext : undefined}
+      onSubmit={activeStep === steps.length - 1 ? formik.handleSubmit : undefined}
+    >
+      {renderStepContent(activeStep)}
+    </EditFormLayout>
   );
 };
 
-export default PropertyForm; 
+export default PropertyEdit; 

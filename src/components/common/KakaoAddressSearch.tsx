@@ -84,7 +84,7 @@ const KakaoAddressSearch: React.FC<KakaoAddressSearchProps> = ({
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', width: '100%', height: '60%' }}>
       <TextField
         fullWidth
         value={value}
@@ -100,6 +100,10 @@ const KakaoAddressSearch: React.FC<KakaoAddressSearchProps> = ({
         onClick={handleSearch}
         startIcon={<SearchIcon />}
         disabled={!isKakaoLoaded}
+        sx={{
+          width: '15%',
+          height: '100%',
+        }}
       >
         검색
       </Button>

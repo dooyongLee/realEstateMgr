@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography, Grid, Chip, Paper, Stepper, Step, StepLabel, Button, List, ListItem, ListItemIcon, ListItemText, Divider, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import DetailLayout from '../../components/layout/DetailLayout';
-import { CheckCircle, Error, Warning, Info } from '@mui/icons-material';
+import { CheckCircle, Error, Warning, Info, ContentCopy } from '@mui/icons-material';
 import { ContractType, ContractStatus } from '@/types/contract';
 import { addMonths, differenceInDays, format } from 'date-fns';
 
@@ -64,6 +64,10 @@ interface Contract {
   terms: string[];
   documents: ContractDocument[];
   notes?: string;
+  propertyFloor?: string;
+  propertyDirection?: string;
+  propertyYear?: string;
+  propertyStructure?: string;
 }
 
 // Mock data for development
@@ -98,6 +102,10 @@ const mockContracts: Contract[] = [
       { id: 'commission_cert', name: '중개수수료 영수증', uploaded: false },
     ],
     notes: '임차인이 반려동물을 키우고 있어서, 계약 시 반려동물 관련 특별 조항을 추가했습니다. 또한 주차 공간이 제한적이어서, 주차 관련 규정을 명확히 했습니다.',
+    propertyFloor: '3층',
+    propertyDirection: '남향',
+    propertyYear: '2015년',
+    propertyStructure: '철근콘크리트',
   },
   {
     id: 2,
@@ -129,6 +137,10 @@ const mockContracts: Contract[] = [
       { id: 'commission_cert', name: '중개수수료 영수증', uploaded: false },
     ],
     notes: '임차인이 외국인이라 계약서를 영문으로도 작성했습니다. 또한 관리비에 인터넷 요금이 포함되어 있어 별도 안내가 필요합니다.',
+    propertyFloor: '2층',
+    propertyDirection: '북향',
+    propertyYear: '2010년',
+    propertyStructure: '콘크리트',
   },
 ];
 
@@ -212,7 +224,10 @@ const ContractDetail = () => {
       status={contract.status}
       statusColor={getStatusColor(contract.status)}
       backUrl="/contracts"
-      onEdit={() => console.log('Edit contract:', contract.id)}
+      onEdit={() => {
+        console.log('Navigating to edit page', { contractId: contract.id });
+        navigate(`/contracts/${contract.id}/edit`);
+      }}
       onDelete={() => console.log('Delete contract:', contract.id)}
     >
       <Grid container spacing={3}>
@@ -275,13 +290,13 @@ const ContractDetail = () => {
             </Typography>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                유형
+                매물 유형
               </Typography>
               <Typography variant="body1">{contract.propertyType}</Typography>
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                크기
+                전용면적
               </Typography>
               <Typography variant="body1">{contract.propertySize}</Typography>
             </Box>
@@ -300,29 +315,51 @@ const ContractDetail = () => {
           </Paper>
         </Grid>
 
-        {/* 임차인 정보 */}
+        {/* 매물 상세 정보 */}
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
-              임차인 정보
+              건물 상세 정보
             </Typography>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                이름
+                건물 방향
               </Typography>
-              <Typography variant="body1">{contract.tenantName}</Typography>
+              <Typography variant="body1">{contract.propertyDirection || '정보 없음'}</Typography>
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                연락처
+                건물 층수
               </Typography>
-              <Typography variant="body1">{contract.tenantPhone}</Typography>
+              <Typography variant="body1">{contract.propertyFloor || '정보 없음'}</Typography>
             </Box>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" color="text.secondary">
-                이메일
+                건물 연식
               </Typography>
-              <Typography variant="body1">{contract.tenantEmail}</Typography>
+              <Typography variant="body1">{contract.propertyYear || '정보 없음'}</Typography>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                건물 구조
+              </Typography>
+              <Typography variant="body1">{contract.propertyStructure || '정보 없음'}</Typography>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                주차 가능 대수
+              </Typography>
+              <Typography variant="body1">
+                {contract.terms.find(term => term.includes('주차'))?.split(':')[1]?.trim() || '정보 없음'}
+              </Typography>
+            </Box>
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">
+                반려동물 가능 여부
+              </Typography>
+              <Typography variant="body1">
+                {contract.terms.find(term => term.includes('반려동물'))?.split(':')[1]?.trim() || '정보 없음'}
+              </Typography>
             </Box>
           </Paper>
         </Grid>
@@ -470,9 +507,24 @@ const ContractDetail = () => {
         {/* 액션 버튼 */}
         <Grid item xs={12}>
           <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-              공공 서류 발급
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+              <Typography variant="h6">
+                공공 서류 발급
+              </Typography>
+              <Button
+                variant="outlined"
+                startIcon={<ContentCopy />}
+                onClick={() => {
+                  navigator.clipboard.writeText(contract.propertyLocation);
+                  setSnackbar({
+                    open: true,
+                    message: '매물 주소가 클립보드에 복사되었습니다.'
+                  });
+                }}
+              >
+                매물 주소 복사
+              </Button>
+            </Box>
             <Grid container spacing={3}>
               {/* 등기소 */}
               <Grid item xs={12} md={3}>

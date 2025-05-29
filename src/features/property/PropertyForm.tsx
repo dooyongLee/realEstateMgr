@@ -68,6 +68,10 @@ interface FormValues {
   features: string[];
   description: string;
   images: File[];
+  direction: string;
+  floor: string;
+  year: string;
+  structure: string;
 }
 
 const propertyTypes = [
@@ -84,6 +88,24 @@ const contractTypes = [
 ];
 
 const steps = ['기본 정보', '상세 정보', '추가 정보'];
+
+const buildingDirections = [
+  { value: 'EAST', label: '동향' },
+  { value: 'WEST', label: '서향' },
+  { value: 'SOUTH', label: '남향' },
+  { value: 'NORTH', label: '북향' },
+  { value: 'SOUTHEAST', label: '남동향' },
+  { value: 'SOUTHWEST', label: '남서향' },
+  { value: 'NORTHEAST', label: '북동향' },
+  { value: 'NORTHWEST', label: '북서향' },
+];
+
+const buildingStructures = [
+  { value: 'CONCRETE', label: '철근콘크리트' },
+  { value: 'STEEL_FRAME', label: '철골구조' },
+  { value: 'WOOD', label: '목구조' },
+  { value: 'MIXED', label: '혼합구조' },
+];
 
 const validationSchema = Yup.object({
   title: Yup.string().required('매물 제목을 입력해주세요').max(100, '100자 이내로 입력해주세요'),
@@ -110,6 +132,10 @@ const validationSchema = Yup.object({
   features: Yup.array().of(Yup.string()).max(200, '200자 이내로 입력해주세요'),
   description: Yup.string().max(1000, '1000자 이내로 입력해주세요'),
   images: Yup.array().of(Yup.mixed()).max(10, '최대 10개의 이미지만 업로드할 수 있습니다'),
+  direction: Yup.string().required('건물 방향을 선택해주세요'),
+  floor: Yup.string().required('건물 층수를 입력해주세요'),
+  year: Yup.string().required('건물 연식을 입력해주세요'),
+  structure: Yup.string().required('건물 구조를 선택해주세요'),
 });
 
 const propertyFeatures = [
@@ -164,7 +190,11 @@ const PropertyForm = () => {
       features: [],
       description: '',
       images: [],
-    },
+      direction: '',
+      floor: '',
+      year: '',
+      structure: '',
+    } as FormValues,
     validationSchema,
     onSubmit: async (values: FormValues) => {
       try {
@@ -240,7 +270,7 @@ const PropertyForm = () => {
       case 0:
         return ['title', 'type', 'contractType', 'address'];
       case 1:
-        return ['price', 'size', 'maintenanceFee', 'parking', 'moveInDate'];
+        return ['price', 'size', 'maintenanceFee', 'parking', 'moveInDate', 'direction', 'floor', 'year', 'structure'];
       case 2:
         return ['features', 'description', 'images'];
       default:
@@ -322,23 +352,16 @@ const PropertyForm = () => {
       case 1:
         return (
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                label="월세/전세 금액"
                 name="price"
+                label="가격"
                 value={formik.values.price}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === '' || /^\d*$/.test(value)) {
-                    formik.setFieldValue('price', value);
-                  }
-                }}
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.price && Boolean(formik.errors.price)}
-                helperText={formik.touched.price && formik.errors.price}
-                required
-                type="text"
+                error={!!formik.errors.price && formik.touched.price}
+                helperText={formik.errors.price && formik.touched.price ? formik.errors.price : ''}
                 InputProps={{
                   endAdornment: <InputAdornment position="end">만원</InputAdornment>,
                 }}
@@ -419,6 +442,74 @@ const PropertyForm = () => {
                 required
                 minDate={new Date()} // 오늘 이전 날짜는 선택 불가
               />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth error={!!formik.errors.direction && formik.touched.direction}>
+                <InputLabel>건물 방향</InputLabel>
+                <Select
+                  name="direction"
+                  value={formik.values.direction}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  label="건물 방향"
+                >
+                  {buildingDirections.map((direction) => (
+                    <MenuItem key={direction.value} value={direction.value}>
+                      {direction.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.errors.direction && formik.touched.direction && (
+                  <FormHelperText>{formik.errors.direction}</FormHelperText>
+                )}
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                name="floor"
+                label="건물 층수"
+                value={formik.values.floor}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!formik.errors.floor && formik.touched.floor}
+                helperText={formik.errors.floor && formik.touched.floor ? formik.errors.floor : ''}
+                placeholder="예: 3층"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                name="year"
+                label="건물 연식"
+                value={formik.values.year}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={!!formik.errors.year && formik.touched.year}
+                helperText={formik.errors.year && formik.touched.year ? formik.errors.year : ''}
+                placeholder="예: 2015년"
+              />
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth error={!!formik.errors.structure && formik.touched.structure}>
+                <InputLabel>건물 구조</InputLabel>
+                <Select
+                  name="structure"
+                  value={formik.values.structure}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  label="건물 구조"
+                >
+                  {buildingStructures.map((structure) => (
+                    <MenuItem key={structure.value} value={structure.value}>
+                      {structure.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+                {formik.errors.structure && formik.touched.structure && (
+                  <FormHelperText>{formik.errors.structure}</FormHelperText>
+                )}
+              </FormControl>
             </Grid>
           </Grid>
         );
@@ -543,71 +634,56 @@ const PropertyForm = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5">매물 등록</Typography>
-        <Button 
-          variant="outlined" 
-          onClick={() => navigate('/properties')}
-          startIcon={<ArrowBack />}
-        >
-          매물 관리로 이동
-        </Button>
-      </Box>
-      <Card elevation={3}>
-        <CardContent>
-          <Typography variant="h5" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>
-            매물 등록
-          </Typography>
-          
-          <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
-            {steps.map((label) => (
-              <Step key={label}>
-                <StepLabel>{label}</StepLabel>
-              </Step>
-            ))}
-          </Stepper>
+    <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+      <Paper sx={{ p: 3 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h5">매물 등록</Typography>
+          <Button 
+            variant="outlined" 
+            onClick={() => navigate('/properties')}
+            startIcon={<ArrowBack />}
+          >
+            매물 관리로 이동
+          </Button>
+        </Box>
+        <Stepper activeStep={activeStep} sx={{ mb: 4 }}>
+          {steps.map((label) => (
+            <Step key={label}>
+              <StepLabel>{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 3 }}>
-              {error}
-            </Alert>
-          )}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
 
-          <Box sx={{ mb: 4 }}>
-            {renderStepContent(activeStep)}
+        <form onSubmit={formik.handleSubmit}>
+          {renderStepContent(activeStep)}
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
+            {activeStep > 0 && (
+              <Button onClick={handleBack} disabled={isSubmitting}>
+                이전
+              </Button>
+            )}
+            {activeStep < steps.length - 1 ? (
+              <Button variant="contained" onClick={handleNext} disabled={isSubmitting}>
+                다음
+              </Button>
+            ) : (
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={isSubmitting}
+              >
+                등록
+              </Button>
+            )}
           </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
-            <Button
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1 }}
-            >
-              이전
-            </Button>
-            <Box>
-              {activeStep === steps.length - 1 ? (
-                <LoadingButton
-                  type="submit"
-                  variant="contained"
-                  loading={isSubmitting}
-                  disabled={isSubmitting}
-                >
-                  등록하기
-                </LoadingButton>
-              ) : (
-                <Button
-                  variant="contained"
-                  onClick={handleNext}
-                >
-                  다음
-                </Button>
-              )}
-            </Box>
-          </Box>
-        </CardContent>
-      </Card>
+        </form>
+      </Paper>
     </Box>
   );
 };

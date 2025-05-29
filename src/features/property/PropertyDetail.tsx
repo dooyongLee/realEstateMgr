@@ -4,8 +4,7 @@ import DetailLayout from '../../components/layout/DetailLayout';
 import PropertyImageGallery from '../../components/layout/PropertyImageGallery';
 import KakaoMap from '../../components/common/KakaoMap';
 import { useState, useEffect } from 'react';
-import { fetchRecentTransactionPrices, parsePrice, parseArea } from '../../utils/realEstatePrice';
-import { formatArea } from '../../utils/areaConverter';
+
 
 interface Property {
   id: number;
@@ -93,57 +92,11 @@ const PropertyDetail = () => {
     }
   };
 
-  // 실거래가 데이터 조회
-  useEffect(() => {
-    const fetchTransactionPrices = async () => {
-      if (!property || property.type !== 'APARTMENT') return;
-
-      try {
-        setPriceLoading(true);
-        setPriceError(null);
-
-        // 현재 날짜 기준으로 최근 3개월 데이터 조회
-        const today = new Date();
-        const months = Array.from({ length: 3 }, (_, i) => {
-          const date = new Date(today);
-          date.setMonth(date.getMonth() - i);
-          return date.toISOString().slice(0, 7).replace('-', '');
-        });
-
-        const allPrices = [];
-        for (const month of months) {
-          const prices = await fetchRecentTransactionPrices(
-            property.regionCode || '', // 지역코드
-            month,
-            property.name || '' // 아파트명
-          );
-          allPrices.push(...prices);
-        }
-
-        // 면적이 비슷한 매물만 필터링 (현재 매물 면적의 ±10% 이내)
-        const currentArea = parseFloat(property.size);
-        const filteredPrices = allPrices.filter(price => {
-          const priceArea = parseArea(price.전용면적);
-          return Math.abs(priceArea - currentArea) / currentArea <= 0.1;
-        });
-
-        setTransactionPrices(filteredPrices);
-      } catch (err) {
-        setPriceError('실거래가 정보를 불러오는데 실패했습니다.');
-        console.error('실거래가 조회 중 오류:', err);
-      } finally {
-        setPriceLoading(false);
-      }
-    };
-
-    fetchTransactionPrices();
-  }, [property]);
 
   return (
     <DetailLayout
       title={property.title}
       status={property.status}
-      statusColor={getStatusColor(property.status)}
       backUrl="/properties"
       onEdit={() => console.log('Edit property:', property.id)}
       onDelete={() => console.log('Delete property:', property.id)}

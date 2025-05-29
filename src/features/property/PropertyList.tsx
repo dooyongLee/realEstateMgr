@@ -166,7 +166,7 @@ const PropertyList = () => {
                     startIcon={<EditIcon />}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('Edit:', property.id);
+                      navigate(`/properties/${property.id}/edit`);
                     }}
                   >
                     수정

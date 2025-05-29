@@ -2,16 +2,19 @@ export type PropertyType = 'APARTMENT' | 'OFFICETEL' | 'HOUSE' | 'COMMERCIAL';
 export type PropertyStatus = 'available' | 'sold';
 
 export interface Property {
-  id: string;
-  type: PropertyType;
-  name: string;
-  price: number;
-  area: number;
-  floor: number;
-  features: string[];
+  id: number;
+  title: string;
+  type: string;
+  status: string;
   address: string;
-  description?: string;
-  images?: string[];
-  createdAt: string;
-  updatedAt: string;
+  latitude: number;
+  longitude: number;
+  price: number;
+  size: number;
+  maintenanceFee?: number;
+  parking?: string;
+  moveInDate: string;
+  features: string[];
+  description: string;
+  images: string[];
 } 

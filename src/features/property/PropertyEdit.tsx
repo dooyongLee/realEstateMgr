@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Grid, TextField, MenuItem, InputAdornment } from '@mui/material';
+import { Grid, TextField, MenuItem, InputAdornment, Box, Button, Typography } from '@mui/material';
 import EditFormLayout from '@/components/layout/EditFormLayout';
 import KakaoAddressSearch from '@/components/common/KakaoAddressSearch';
 import DatePicker from '@/components/common/DatePicker';
 import FileUpload from '@/components/common/FileUpload';
+import { useProperty } from '@/hooks/useProperty';
+import { Property } from '@/types/property';
 
 interface FormValues {
   title: string;
@@ -92,6 +94,7 @@ const PropertyEdit = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { property, updateProperty, isLoading } = useProperty(id);
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -115,8 +118,18 @@ const PropertyEdit = () => {
       try {
         setIsSubmitting(true);
         setError(null);
-        // API 호출 로직 추가
-        console.log('Form submitted:', values);
+        
+        const propertyData: Partial<Property> = {
+          ...values,
+          price: Number(values.price),
+          size: Number(values.size),
+          maintenanceFee: values.maintenanceFee ? Number(values.maintenanceFee) : undefined,
+        };
+
+        if (id) {
+          await updateProperty(id, propertyData);
+        }
+        
         navigate('/properties');
       } catch (err) {
         setError('매물 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -127,20 +140,25 @@ const PropertyEdit = () => {
   });
 
   useEffect(() => {
-    // API 호출하여 매물 데이터 가져오기
-    const fetchProperty = async () => {
-      try {
-        // const response = await api.get(`/properties/${id}`);
-        // formik.setValues(response.data);
-      } catch (err) {
-        setError('매물 정보를 불러오는데 실패했습니다.');
-      }
-    };
-
-    if (id) {
-      fetchProperty();
+    if (property) {
+      formik.setValues({
+        title: property.title,
+        type: property.type,
+        status: property.status,
+        address: property.address,
+        latitude: property.latitude,
+        longitude: property.longitude,
+        price: property.price.toString(),
+        size: property.size.toString(),
+        maintenanceFee: property.maintenanceFee?.toString() || '',
+        parking: property.parking || '',
+        moveInDate: property.moveInDate,
+        features: property.features || [],
+        description: property.description || '',
+        images: property.images || [],
+      });
     }
-  }, [id]);
+  }, [property]);
 
   const handleAddressSelect = (address: string, latitude: number, longitude: number) => {
     formik.setFieldValue('address', address);
@@ -151,7 +169,7 @@ const PropertyEdit = () => {
   const handleNext = () => {
     const currentStepFields = getStepFields(activeStep);
     const currentStepValues = currentStepFields.reduce<Partial<FormValues>>((acc, field) => {
-      acc[field] = formik.values[field];
+      acc[field] = formik.values[field as keyof FormValues];
       return acc;
     }, {});
 

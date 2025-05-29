@@ -98,7 +98,7 @@ const PropertyDetail = () => {
       title={property.title}
       status={property.status}
       backUrl="/properties"
-      onEdit={() => console.log('Edit property:', property.id)}
+      onEdit={() => navigate(`/properties/${property.id}/edit`)}
       onDelete={() => console.log('Delete property:', property.id)}
     >
       <Grid container spacing={3}>

@@ -17,6 +17,10 @@ import {
   Grid,
   Card,
   CardContent,
+  FormControl,
+  InputLabel,
+  Select,
+  FormHelperText,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useFormik } from 'formik';
@@ -46,6 +50,7 @@ import {
   Hotel,
   Pets,
   VolumeOff,
+  ArrowBack,
 } from '@mui/icons-material';
 
 interface FormValues {
@@ -538,7 +543,17 @@ const PropertyForm = () => {
   };
 
   return (
-    <Box component="form" onSubmit={formik.handleSubmit} sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Typography variant="h5">매물 등록</Typography>
+        <Button 
+          variant="outlined" 
+          onClick={() => navigate('/properties')}
+          startIcon={<ArrowBack />}
+        >
+          매물 관리로 이동
+        </Button>
+      </Box>
       <Card elevation={3}>
         <CardContent>
           <Typography variant="h5" gutterBottom sx={{ mb: 4, fontWeight: 'bold' }}>

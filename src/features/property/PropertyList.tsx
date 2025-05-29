@@ -11,6 +11,7 @@ const mockProperties = [
     id: 1,
     title: '강남 아파트',
     type: '아파트',
+    contractType: '매매',
     price: '12억',
     deposit: '5억',
     monthlyRent: '200만원',
@@ -38,6 +39,7 @@ const mockProperties = [
     id: 2,
     title: '송파 오피스텔',
     type: '오피스텔',
+    contractType: '매매',
     price: '8억',
     deposit: '3억',
     monthlyRent: '150만원',
@@ -102,7 +104,7 @@ const PropertyList = () => {
     <Card sx={{ mt: 3 }}>
       <SearchPanel
         conditions={propertySearchConditions}
-        placeholder="매물명, 주소로 검색"
+        placeholder="매물명으로 검색"
         onAdd={handleAdd}
         onSearch={(conditions) => {
           console.log(JSON.stringify(conditions));
@@ -114,6 +116,7 @@ const PropertyList = () => {
             <TableRow>
               <TableCell>매물명</TableCell>
               <TableCell>유형</TableCell>
+              <TableCell>계약</TableCell>
               <TableCell>가격</TableCell>
               <TableCell>보증금/월세</TableCell>
               <TableCell>면적</TableCell>
@@ -135,6 +138,7 @@ const PropertyList = () => {
               >
                 <TableCell>{property.title}</TableCell>
                 <TableCell>{property.type}</TableCell>
+                <TableCell>{property.contractType}</TableCell>
                 <TableCell>{property.price}</TableCell>
                 <TableCell>
                   {property.deposit}<br/>

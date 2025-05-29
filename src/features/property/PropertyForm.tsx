@@ -51,7 +51,7 @@ import {
 interface FormValues {
   title: string;
   type: string;
-  status: string;
+  contractType: string;
   address: string;
   latitude: number;
   longitude: number;
@@ -72,10 +72,10 @@ const propertyTypes = [
   { value: 'OFFICE', label: '사무실' },
 ];
 
-const propertyStatuses = [
-  { value: 'AVAILABLE', label: '임대 가능' },
-  { value: 'RENTED', label: '임대 중' },
-  { value: 'MAINTENANCE', label: '보수 중' },
+const contractTypes = [
+  { value: 'sale', label: '매매' },
+  { value: 'monthlyRent', label: '월세' },
+  { value: 'yearRent', label: '전세' },
 ];
 
 const steps = ['기본 정보', '상세 정보', '추가 정보'];
@@ -83,7 +83,7 @@ const steps = ['기본 정보', '상세 정보', '추가 정보'];
 const validationSchema = Yup.object({
   title: Yup.string().required('매물 제목을 입력해주세요').max(100, '100자 이내로 입력해주세요'),
   type: Yup.string().required('매물 유형을 선택해주세요'),
-  status: Yup.string().required('매물 상태를 선택해주세요'),
+  contractType: Yup.string().required('계약 형태를 선택해주세요'),
   address: Yup.string().required('주소를 입력해주세요'),
   latitude: Yup.number().required('위도 정보가 필요합니다'),
   longitude: Yup.number().required('경도 정보가 필요합니다'),
@@ -147,7 +147,7 @@ const PropertyForm = () => {
     initialValues: {
       title: '',
       type: '',
-      status: 'AVAILABLE',
+      contractType: 'monthlyRent',
       address: '',
       latitude: 0,
       longitude: 0,
@@ -233,7 +233,7 @@ const PropertyForm = () => {
   const getStepFields = (step: number): (keyof FormValues)[] => {
     switch (step) {
       case 0:
-        return ['title', 'type', 'status', 'address'];
+        return ['title', 'type', 'contractType', 'address'];
       case 1:
         return ['price', 'size', 'maintenanceFee', 'parking', 'moveInDate'];
       case 2:
@@ -285,16 +285,16 @@ const PropertyForm = () => {
               <TextField
                 fullWidth
                 select
-                label="매물 상태"
-                name="status"
-                value={formik.values.status}
+                label="계약 형태"
+                name="contractType"
+                value={formik.values.contractType}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                error={formik.touched.status && Boolean(formik.errors.status)}
-                helperText={formik.touched.status && formik.errors.status}
+                error={formik.touched.contractType && Boolean(formik.errors.contractType)}
+                helperText={formik.touched.contractType && formik.errors.contractType}
                 required
               >
-                {propertyStatuses.map((option) => (
+                {contractTypes.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
                   </MenuItem>

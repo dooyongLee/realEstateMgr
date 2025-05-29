@@ -15,6 +15,16 @@ export const propertySearchConditions: SearchCondition[] = [
     ]
   },
   {
+    field: 'c-type',
+    label: '계약형태',
+    type: 'select',
+    options: [
+      { value: 'forSale', label: '매매' },
+      { value: 'forRent', label: '전세' },
+      { value: 'forMonthly', label: '월세' }
+    ]
+  },
+  {
     field: 'status',
     label: '상태',
     type: 'select',

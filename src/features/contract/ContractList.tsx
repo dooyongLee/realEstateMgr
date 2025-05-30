@@ -10,7 +10,6 @@ import {
   TableHead,
   TableRow,
   TablePagination,
-  Button,
   Chip,
   IconButton,
   Tooltip,
@@ -19,14 +18,9 @@ import {
   LinearProgress,
 } from '@mui/material';
 import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
   Visibility as ViewIcon,
-  Description as DocumentIcon,
-  Payment as PaymentIcon,
-  Warning as WarningIcon,
-  CheckCircle as CheckCircleIcon,
+  Edit as EditIcon,
+  History as HistoryIcon,
 } from '@mui/icons-material';
 import SearchPanel from '@/components/common/search/SearchPanel';
 import { contractSearchConditions } from '@/components/common/search/searchConditions';
@@ -61,10 +55,6 @@ const mockContracts = [
     monthlyRent: null,
     commission: '1200만원',
     commissionStatus: '미지급',
-    paymentSchedule: [
-      { date: '2024-03-20', amount: '4억', type: '계약금' },
-      { date: '2024-04-01', amount: '8억', type: '잔금' },
-    ],
     documents: [
       { name: '매매계약서', status: '완료' },
       { name: '소유권이전등기', status: '진행중' },
@@ -101,10 +91,6 @@ const mockContracts = [
     monthlyRent: '150만원',
     commission: '800만원',
     commissionStatus: '지급완료',
-    paymentSchedule: [
-      { date: '2024-03-10', amount: '3억', type: '보증금' },
-      { date: '2024-03-25', amount: '150만원', type: '월세' },
-    ],
     documents: [
       { name: '임대차계약서', status: '완료' },
       { name: '전입신고', status: '완료' },
@@ -322,26 +308,26 @@ const ContractList = () => {
                           <ViewIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="계약서">
+                      <Tooltip title="수정">
                         <IconButton
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
-                            console.log('View document:', contract.id);
+                            navigate(`/contracts/${contract.id}/edit`);
                           }}
                         >
-                          <DocumentIcon fontSize="small" />
+                          <EditIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="수수료 관리">
+                      <Tooltip title="계약서 변경이력">
                         <IconButton
                           size="small"
                           onClick={(e) => {
                             e.stopPropagation();
-                            console.log('Manage commission:', contract.id);
+                            navigate(`/contracts/${contract.id}/history`);
                           }}
                         >
-                          <PaymentIcon fontSize="small" />
+                          <HistoryIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     </Stack>

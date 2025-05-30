@@ -14,6 +14,9 @@ import {
   Chip,
   IconButton,
   Tooltip,
+  Typography,
+  Stack,
+  LinearProgress,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -22,9 +25,12 @@ import {
   Visibility as ViewIcon,
   Description as DocumentIcon,
   Payment as PaymentIcon,
+  Warning as WarningIcon,
+  CheckCircle as CheckCircleIcon,
 } from '@mui/icons-material';
 import SearchPanel from '@/components/common/search/SearchPanel';
 import { contractSearchConditions } from '@/components/common/search/searchConditions';
+import { format } from 'date-fns';
 
 // Mock data for development
 const mockContracts = [
@@ -154,6 +160,24 @@ const ContractList = () => {
     navigate(`/contracts/${id}`);
   };
 
+  const getDocumentProgress = (documents: any[]) => {
+    const totalDocs = documents.length;
+    const completedDocs = documents.filter(d => d.status === '완료').length;
+    return (completedDocs / totalDocs) * 100;
+  };
+
+  const getDocumentProgressColor = (progress: number) => {
+    if (progress === 100) return 'success';
+    if (progress >= 50) return 'info';
+    return 'warning';
+  };
+
+  const getDocumentProgressText = (documents: any[]) => {
+    const totalDocs = documents.length;
+    const completedDocs = documents.filter(d => d.status === '완료').length;
+    return `${completedDocs}/${totalDocs}`;
+  };
+
   return (
     <Card sx={{ mt: 3 }}>
       <SearchPanel
@@ -165,7 +189,7 @@ const ContractList = () => {
         }}
       />
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
               <TableCell>계약번호</TableCell>
@@ -176,77 +200,155 @@ const ContractList = () => {
               <TableCell>계약기간</TableCell>
               <TableCell>보증금/월세</TableCell>
               <TableCell>수수료</TableCell>
+              <TableCell>서류</TableCell>
               <TableCell>상태</TableCell>
-              <TableCell>관리</TableCell>
+              <TableCell align="center">관리</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockContracts.map((contract) => (
-              <TableRow 
-                key={contract.id}
-                onClick={() => handleRowClick(contract.id)}
-                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
-              >
-                <TableCell>{contract.contractNumber}</TableCell>
-                <TableCell>{contract.type}</TableCell>
-                <TableCell>
-                  {contract.property.title}<br/>
-                  <small>{contract.property.address}</small>
-                </TableCell>
-                <TableCell>
-                  {contract.customer.name}<br/>
-                  <small>{contract.customer.phone}</small>
-                </TableCell>
-                <TableCell>{contract.contractDate}</TableCell>
-                <TableCell>
-                  {contract.startDate}<br/>
-                  {contract.endDate ? `~ ${contract.endDate}` : ''}
-                </TableCell>
-                <TableCell>
-                  {contract.deposit}<br/>
-                  {contract.monthlyRent && `${contract.monthlyRent}/월`}
-                </TableCell>
-                <TableCell>
-                  {contract.commission}<br/>
-                  <Chip
-                    label={contract.commissionStatus}
-                    color={getCommissionStatusColor(contract.commissionStatus)}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={contract.status}
-                    color={getStatusColor(contract.status)}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Tooltip title="계약서">
-                    <IconButton
+            {mockContracts.map((contract) => {
+              const docProgress = getDocumentProgress(contract.documents);
+              return (
+                <TableRow 
+                  key={contract.id}
+                  onClick={() => handleRowClick(contract.id)}
+                  sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
+                >
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {contract.contractNumber}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={contract.type}
                       size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log('View document:', contract.id);
-                      }}
-                    >
-                      <DocumentIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip title="수수료 관리">
-                    <IconButton
+                      color={contract.type === '매매' ? 'primary' : 'info'}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {contract.property.title}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" noWrap>
+                      {contract.property.address}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {contract.customer.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" noWrap>
+                      {contract.customer.phone}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {format(new Date(contract.contractDate), 'MM/dd')}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {format(new Date(contract.startDate), 'MM/dd')}
+                      {contract.endDate && ` ~ ${format(new Date(contract.endDate), 'MM/dd')}`}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {contract.deposit}
+                      {contract.monthlyRent && ` + ${contract.monthlyRent}/월`}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {contract.commission}
+                    </Typography>
+                    <Chip
+                      label={contract.commissionStatus}
+                      color={getCommissionStatusColor(contract.commissionStatus)}
                       size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log('Manage commission:', contract.id);
-                      }}
-                    >
-                      <PaymentIcon />
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
+                      sx={{ height: 20 }}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Tooltip title={
+                      <Box>
+                        <Typography variant="caption" sx={{ display: 'block', mb: 1 }}>
+                          서류 진행 현황
+                        </Typography>
+                        {contract.documents.map((doc, index) => (
+                          <Typography key={index} variant="caption" sx={{ display: 'block' }}>
+                            {doc.name}: {doc.status}
+                          </Typography>
+                        ))}
+                      </Box>
+                    }>
+                      <Box sx={{ width: '100%', minWidth: 100 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                          <Typography variant="caption" sx={{ mr: 1 }}>
+                            {getDocumentProgressText(contract.documents)}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {Math.round(docProgress)}%
+                          </Typography>
+                        </Box>
+                        <LinearProgress
+                          variant="determinate"
+                          value={docProgress}
+                          color={getDocumentProgressColor(docProgress)}
+                          sx={{ height: 6, borderRadius: 3 }}
+                        />
+                      </Box>
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={contract.status}
+                      color={getStatusColor(contract.status)}
+                      size="small"
+                      sx={{ height: 20 }}
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Stack direction="row" spacing={0.5} justifyContent="center">
+                      <Tooltip title="상세보기">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/contracts/${contract.id}`);
+                          }}
+                        >
+                          <ViewIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="계약서">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log('View document:', contract.id);
+                          }}
+                        >
+                          <DocumentIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="수수료 관리">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            console.log('Manage commission:', contract.id);
+                          }}
+                        >
+                          <PaymentIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

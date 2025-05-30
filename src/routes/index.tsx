@@ -11,6 +11,7 @@ import PropertyEdit from '@/features/property/PropertyEdit';
 import ContractPage from '@/features/contract/ContractPage';
 import ContractLayout from '@/features/contract/ContractLayout';
 import ContractDetail from '@/features/contract/ContractDetail';
+import ContractEdit from '@/features/contract/ContractEdit';
 import ContractForm from '@/features/contract/ContractForm';
 import CustomerPage from '@/features/customer/CustomerPage';
 import CustomerLayout from '@/features/customer/CustomerLayout';
@@ -67,6 +68,9 @@ const router = createBrowserRouter([
               {
                 path: ':id',
                 element: <ContractDetail />,
+              },              {
+                path: ':id/edit',
+                element: <ContractEdit />,
               },
             ],
           },

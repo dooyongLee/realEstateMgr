@@ -7,14 +7,14 @@ import { CircularProgress, Box } from '@mui/material';
 // Lazy-loaded components
 const Home = lazy(() => import('@/pages/Home'));
 const Login = lazy(() => import('@/pages/Login'));
-const Register = lazy(() => import('@/pages/Register'));
-const Property = lazy(() => import('@/pages/PropertyPage'));
-const PropertyDetail = lazy(() => import('@/pages/PropertyDetail'));
+// const Register = lazy(() => import('@/pages/Register'));
+const Property = lazy(() => import('@/features//property/PropertyPage'));
+const PropertyDetail = lazy(() => import('@/features/property/PropertyDetail'));
 const ContractPage = lazy(() => import('@/features/contract/ContractPage'));
 const ContractDetail = lazy(() => import('@/features/contract/ContractDetail'));
 const ContractEdit = lazy(() => import('@/features/contract/ContractEdit'));
-const Profile = lazy(() => import('@/pages/Profile'));
-const NotFound = lazy(() => import('@/pages/NotFound'));
+// const Profile = lazy(() => import('@/pages/Profile'));
+// const NotFound = lazy(() => import('@/pages/NotFound'));
 
 // Loading component
 const LoadingFallback = () => (

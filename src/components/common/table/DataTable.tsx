@@ -88,7 +88,7 @@ const DataTable = <T extends object>({
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={onRowsPerPageChange}
         rowsPerPageOptions={[5, 10, 25, 50]}
-        labelRowsPerPage="페이지당 행 수"
+        labelRowsPerPage="Rows per page"
         labelDisplayedRows={({ from, to, count }) =>
           `${from}-${to} / ${count}`
         }

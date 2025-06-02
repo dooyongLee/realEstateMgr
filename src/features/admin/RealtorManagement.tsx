@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography, Grid, Paper, Card, TablePagination } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import StatusRadioGroup from '../../components/common/StatusRadioGroup';
 import ActionButtons from '../../components/common/ActionButtons';
@@ -8,6 +8,7 @@ import TableToolbar from '../../components/common/TableToolbar';
 import FormDialog from '../../components/common/FormDialog';
 import PageHeader from '../../components/common/PageHeader';
 import AgentList from './components/AgentList';
+import SearchPanel from '@/components/common/search/SearchPanel';
 
 interface Agent {
   id: string;
@@ -82,6 +83,8 @@ const mockRealtorCompanies: Company[] = [
 
 const RealtorManagement = () => {
   const [companies, setCompanies] = useState<Company[]>(mockRealtorCompanies);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openDialog, setOpenDialog] = useState(false);
   const [dialogType, setDialogType] = useState<'company' | 'agent'>('company');
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
@@ -96,32 +99,11 @@ const RealtorManagement = () => {
 
   const handleOpenDialog = (type: 'company' | 'agent', companyId?: string, agentId?: string) => {
     setDialogType(type);
-    setSelectedCompany(companyId || null);
-    setSelectedAgent(agentId || null);
     
-    if (type === 'company' && companyId) {
-      const company = companies.find(c => c.id === companyId);
-      if (company) {
-        setFormData({
-          name: company.name,
-          licenseNumber: company.licenseNumber,
-          address: company.address,
-          phone: company.phone,
-          status: company.status,
-        });
-      }
-    } else if (type === 'agent' && companyId && agentId) {
-      const company = companies.find(c => c.id === companyId);
-      const agent = company?.agents.find(a => a.id === agentId);
-      if (agent) {
-        setFormData({
-          name: agent.name,
-          licenseNumber: agent.licenseNumber,
-          phone: agent.phone,
-          status: agent.status,
-        });
-      }
-    } else {
+    // 등록 모드인 경우 (companyId가 없거나 agentId가 없는 경우)
+    if (!companyId || (type === 'agent' && !agentId)) {
+      setSelectedCompany(null);
+      setSelectedAgent(null);
       setFormData({
         name: '',
         licenseNumber: '',
@@ -129,6 +111,34 @@ const RealtorManagement = () => {
         phone: '',
         status: 'active',
       });
+    } else {
+      // 수정 모드인 경우
+      setSelectedCompany(companyId);
+      setSelectedAgent(agentId || null);
+      
+      if (type === 'company') {
+        const company = companies.find(c => c.id === companyId);
+        if (company) {
+          setFormData({
+            name: company.name,
+            licenseNumber: company.licenseNumber,
+            address: company.address,
+            phone: company.phone,
+            status: company.status,
+          });
+        }
+      } else if (type === 'agent' && agentId) {
+        const company = companies.find(c => c.id === companyId);
+        const agent = company?.agents.find(a => a.id === agentId);
+        if (agent) {
+          setFormData({
+            name: agent.name,
+            licenseNumber: agent.licenseNumber,
+            phone: agent.phone,
+            status: agent.status,
+          });
+        }
+      }
     }
     
     setOpenDialog(true);
@@ -193,6 +203,21 @@ const RealtorManagement = () => {
     );
   };
 
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
+  // 현재 페이지의 데이터만 표시
+  const paginatedCompanies = companies.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   const columns: Column<Company>[] = [
     { id: 'name', label: '사업자명', minWidth: 170 },
     { id: 'licenseNumber', label: '사업자등록번호', minWidth: 130 },
@@ -217,8 +242,8 @@ const RealtorManagement = () => {
       minWidth: 100,
       render: (row) => (
         <ActionButtons
-          onAdd={() => handleOpenDialog('agent', row.id)}
-          onEdit={() => handleOpenDialog('company', row.id)}
+          onAdd={() => handleOpenDialog('agent', row.id, undefined)}
+          onEdit={() => handleOpenDialog('company', row.id, undefined)}
           onDelete={() => handleDelete('company', row.id)}
           showAdd
         />
@@ -228,54 +253,59 @@ const RealtorManagement = () => {
 
   return (
     <Box>
-      <PageHeader
-        title="공인중개사 관리"
-        breadcrumbs={[
-          { label: '홈', href: '/' },
-          { label: '관리자', href: '/admin' },
-          { label: '공인중개사 관리' },
-        ]}
-        actions={
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog('company')}
-          >
-            공인중개사업자 등록
-          </Button>
-        }
-      />
-
-      <Box sx={{ mb: 3 }}>
-        <TableToolbar
+      
+      <Card 
+        sx={{ 
+          mt: 3,
+          '& .MuiTableRow-root': {
+            backgroundColor: 'white',
+          },
+          '& .MuiTableRow-head': {
+            backgroundColor: 'white',
+          },
+          '& .MuiTableCell-head': {
+            backgroundColor: 'white',
+          }
+        }}
+      >
+        <SearchPanel
+          title="공인중개사업자"
+          onAdd={() => handleOpenDialog('company')}
           onSearch={(value) => console.log('Search:', value)}
-          onRefresh={() => console.log('Refresh')}
-          searchPlaceholder="공인중개사업자 검색"
         />
-      </Box>
-
-      <DataTable
-        columns={columns}
-        data={companies}
-        getRowId={(row) => row.id}
-        stickyHeader
-        maxHeight="calc(100vh - 300px)"
-        expandable
-        expandedContent={(company) => (
-          <AgentList
-            company={company}
-            onAgentStatusChange={handleAgentStatusChange}
-            onAgentEdit={(companyId, agentId) => handleOpenDialog('agent', companyId, agentId)}
-            onAgentDelete={(agentId) => handleDelete('agent', agentId)}
-          />
-        )}
-      />
+        <DataTable
+          columns={columns}
+          data={paginatedCompanies}
+          getRowId={(row) => row.id}
+          stickyHeader
+          maxHeight="calc(100vh - 380px)"
+          expandable
+          expandedContent={(company) => (
+            <AgentList
+              company={company}
+              onAgentStatusChange={handleAgentStatusChange}
+              onAgentEdit={(companyId, agentId) => handleOpenDialog('agent', companyId, agentId)}
+              onAgentDelete={(agentId) => handleDelete('agent', agentId)}
+            />
+          )}
+        />
+        <TablePagination
+          component="div"
+          count={companies.length}
+          page={page}
+          onPageChange={handleChangePage}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+          rowsPerPageOptions={[5, 10, 25]}
+          labelRowsPerPage="Rows per page"
+          labelDisplayedRows={({ from, to, count }) => `${from}-${to} / ${count}`}
+        />
+      </Card>
 
       <FormDialog
         open={openDialog}
         title={`${dialogType === 'company' ? '공인중개사업자' : '공인중개사'} ${
-          selectedCompany || selectedAgent ? '수정' : '등록'
+          (!selectedCompany && !selectedAgent) ? '등록' : '수정'
         }`}
         onClose={handleCloseDialog}
         onSubmit={handleSubmit}

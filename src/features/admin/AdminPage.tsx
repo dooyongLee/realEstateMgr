@@ -61,9 +61,7 @@ const AdminPage = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom sx={{ mb: 4 }}>
-        대시보드
-      </Typography>
+
 
       {/* 통계 카드 섹션 */}
       <Grid container spacing={3} sx={{ mb: 4 }}>

@@ -127,9 +127,6 @@ const RealtorManagement = () => {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        공인중개사 관리
-      </Typography>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           variant="contained"

@@ -18,6 +18,7 @@ import CustomerLayout from '@/features/customer/CustomerLayout';
 import CustomerDetail from '@/features/customer/CustomerDetail';
 import AdminPage from '@/features/admin/AdminPage';
 import AdminLayout from '@/features/admin/AdminLayout';
+import RealtorManagement from '@/features/admin/RealtorManagement';
 
 const router = createBrowserRouter([
   {
@@ -95,6 +96,10 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <AdminPage />,
+              },
+              {
+                path: 'realtors',
+                element: <RealtorManagement />,
               },
             ],
           },

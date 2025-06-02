@@ -1,154 +1,206 @@
-import { useState } from 'react';
+import { Box, Grid, Paper, Typography, useTheme } from '@mui/material';
 import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Chip,
-  IconButton,
-  Tooltip,
-  Button,
-} from '@mui/material';
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip as RechartsTooltip,
+  Legend,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from 'recharts';
 import {
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-  Add as AddIcon,
+  TrendingUp as TrendingUpIcon,
+  TrendingDown as TrendingDownIcon,
+  Home as HomeIcon,
+  Business as BusinessIcon,
+  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
+import StatsCard from '@/components/common/StatsCard';
 
 // 임시 목업 데이터
-const mockUsers = [
-  {
-    id: '1',
-    name: '관리자',
-    email: 'admin@example.com',
-    role: '관리자',
-    status: '활성',
-    lastLogin: '2024-03-15 14:30',
+const mockStats = {
+  totalProperties: {
+    value: 156,
+    change: 12,
+    isPositive: true,
   },
-  {
-    id: '2',
-    name: '일반사용자',
-    email: 'user@example.com',
-    role: '일반',
-    status: '활성',
-    lastLogin: '2024-03-15 13:45',
+  totalRealtors: {
+    value: 45,
+    change: 5,
+    isPositive: true,
   },
-];
+  successfulContracts: {
+    value: 89,
+    change: -3,
+    isPositive: false,
+  },
+  propertyTypes: [
+    { name: '아파트', value: 65 },
+    { name: '주택', value: 35 },
+    { name: '상가', value: 25 },
+    { name: '사무실', value: 31 },
+  ],
+  monthlyStats: [
+    { month: '1월', count: 12 },
+    { month: '2월', count: 19 },
+    { month: '3월', count: 15 },
+    { month: '4월', count: 22 },
+    { month: '5월', count: 28 },
+    { month: '6월', count: 35 },
+  ],
+};
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
 const AdminPage = () => {
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleAddUser = () => {
-    // TODO: 사용자 추가 다이얼로그 표시
-    console.log('Add user');
-  };
-
-  const handleEditUser = (id: string) => {
-    // TODO: 사용자 수정 다이얼로그 표시
-    console.log('Edit user:', id);
-  };
-
-  const handleDeleteUser = (id: string) => {
-    // TODO: 사용자 삭제 확인 다이얼로그 표시
-    console.log('Delete user:', id);
-  };
+  const theme = useTheme();
 
   return (
     <Box>
-      <Box sx={{ mb: 3, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<AddIcon />}
-          onClick={handleAddUser}
-        >
-          사용자 추가
-        </Button>
-      </Box>
+      <Typography variant="h5" gutterBottom sx={{ mb: 4 }}>
+        대시보드
+      </Typography>
 
-      <Paper>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>이름</TableCell>
-                <TableCell>이메일</TableCell>
-                <TableCell>권한</TableCell>
-                <TableCell>상태</TableCell>
-                <TableCell>마지막 로그인</TableCell>
-                <TableCell align="right">관리</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {mockUsers
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={user.role}
-                        color={user.role === '관리자' ? 'primary' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={user.status}
-                        color={user.status === '활성' ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{user.lastLogin}</TableCell>
-                    <TableCell align="right">
-                      <Tooltip title="수정">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleEditUser(user.id)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="삭제">
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteUser(user.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={mockUsers.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+      {/* 통계 카드 섹션 */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={4}>
+          <StatsCard
+            title="전체 매물 수"
+            value={mockStats.totalProperties.value}
+            icon={<HomeIcon />}
+            color={theme.palette.primary.main}
+            trend={{
+              value: mockStats.totalProperties.change,
+              isPositive: mockStats.totalProperties.isPositive,
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <StatsCard
+            title="공인중개사 수"
+            value={mockStats.totalRealtors.value}
+            icon={<BusinessIcon />}
+            color={theme.palette.success.main}
+            trend={{
+              value: mockStats.totalRealtors.change,
+              isPositive: mockStats.totalRealtors.isPositive,
+            }}
+          />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <StatsCard
+            title="계약 성공 수"
+            value={mockStats.successfulContracts.value}
+            icon={<AssignmentIcon />}
+            color={theme.palette.info.main}
+            trend={{
+              value: mockStats.successfulContracts.change,
+              isPositive: mockStats.successfulContracts.isPositive,
+            }}
+          />
+        </Grid>
+      </Grid>
+
+      {/* 차트 섹션 */}
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              height: 400,
+              display: 'flex',
+              flexDirection: 'column',
+              '& .recharts-wrapper': {
+                margin: '0 auto'
+              }
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+              매물 유형별 분포
+            </Typography>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={mockStats.propertyTypes}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                >
+                  {mockStats.propertyTypes.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <RechartsTooltip 
+                  formatter={(value: number) => [`${value}건`, '매물 수']}
+                  contentStyle={{
+                    backgroundColor: theme.palette.background.paper,
+                    border: `1px solid ${theme.palette.divider}`,
+                    borderRadius: theme.shape.borderRadius,
+                  }}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  wrapperStyle={{
+                    paddingTop: '20px'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} md={6}>
+          <Paper 
+            sx={{ 
+              p: 3, 
+              height: 400,
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+          >
+            <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+              월별 매물 등록 현황
+            </Typography>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={mockStats.monthlyStats}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 20,
+                  bottom: 5,
+                }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <RechartsTooltip 
+                  formatter={(value: number) => [`${value}건`, '매물 수']}
+                  contentStyle={{
+                    backgroundColor: theme.palette.background.paper,
+                    border: `1px solid ${theme.palette.divider}`,
+                    borderRadius: theme.shape.borderRadius,
+                  }}
+                />
+                <Bar 
+                  dataKey="count" 
+                  fill={theme.palette.primary.main}
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </Paper>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

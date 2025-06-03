@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Grid, TextField, MenuItem, InputAdornment, Box, Button, Typography } from '@mui/material';
+import { Grid, TextField, MenuItem, InputAdornment, Box, Button, Typography, Card, CardContent, FormControl, InputLabel, Select, Chip, OutlinedInput, SelectChangeEvent } from '@mui/material';
 import EditFormLayout from '@/components/layout/EditFormLayout';
 import KakaoAddressSearch from '@/components/common/KakaoAddressSearch';
 import DatePicker from '@/components/common/DatePicker';
 import FileUpload from '@/components/common/FileUpload';
 import { useProperty } from '@/hooks/useProperty';
 import { Property } from '@/types/property';
+import { properties } from '../../mocks/properties';
 
 interface FormValues {
   title: string;
@@ -28,35 +29,60 @@ interface FormValues {
 }
 
 const propertyTypes = [
-  { value: 'APARTMENT', label: '아파트' },
-  { value: 'HOUSE', label: '주택' },
-  { value: 'COMMERCIAL', label: '상가' },
-  { value: 'OFFICE', label: '사무실' },
+  '아파트',
+  '오피스텔',
+  '주택',
+  '상가',
+  '사무실',
+  '기타',
 ];
 
 const propertyStatuses = [
-  { value: 'SALE', label: '매매' },
-  { value: 'AVAILABLE', label: '임대 가능' },
-  { value: 'RENTED', label: '임대 중' },
+  '임대중',
+  '계약대기',
+  '임대가능',
 ];
 
 const propertyFeatures = [
-  { value: 'NEAR_STATION', label: '역세권' },
-  { value: 'NEAR_SCHOOL', label: '학교근처' },
-  { value: 'QUIET_AREA', label: '조용한 동네' },
-  { value: 'PARKING', label: '주차 편리' },
-  { value: 'ELEVATOR', label: '엘리베이터' },
-  { value: 'SECURITY', label: '보안시설' },
-  { value: 'PET_FRIENDLY', label: '반려동물 가능' },
-  { value: 'BALCONY', label: '베란다' },
-  { value: 'AIR_CONDITIONER', label: '에어컨' },
-  { value: 'WASHING_MACHINE', label: '세탁기' },
-  { value: 'REFRIGERATOR', label: '냉장고' },
-  { value: 'GAS_RANGE', label: '가스레인지' },
-  { value: 'INDUCTION', label: '인덕션' },
-  { value: 'DESK', label: '책상' },
-  { value: 'CLOSET', label: '옷장' },
-  { value: 'BED', label: '침대' },
+  '주차장',
+  'CCTV',
+  '엘리베이터',
+  '보안시스템',
+  '헬스장',
+  '수영장',
+  '공용주방',
+  '세탁실',
+  '공용화장실',
+  '공용샤워실',
+  '공용거실',
+  '공용주방',
+  '공용세탁실',
+  '공용다용도실',
+  '공용휴게실',
+  '공용독서실',
+  '공용컴퓨터실',
+  '공용프린터실',
+  '공용회의실',
+  '공용강의실',
+  '공용연습실',
+  '공용스튜디오',
+  '공용작업실',
+  '공용창고',
+  '공용주차장',
+  '공용운동장',
+  '공용정원',
+  '공용테라스',
+  '공용발코니',
+  '공용옥상',
+  '공용지하실',
+  '공용창고',
+  '공용주차장',
+  '공용운동장',
+  '공용정원',
+  '공용테라스',
+  '공용발코니',
+  '공용옥상',
+  '공용지하실',
 ];
 
 const steps = ['기본 정보', '상세 정보', '추가 정보'];
@@ -95,6 +121,18 @@ const PropertyEdit = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { property, updateProperty, isLoading } = useProperty(id);
+  const [formData, setFormData] = useState({
+    name: '',
+    type: '',
+    address: '',
+    price: '',
+    status: '',
+    description: '',
+    features: [] as string[],
+    availableDate: '',
+    agent: '',
+    contact: '',
+  });
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -140,25 +178,22 @@ const PropertyEdit = () => {
   });
 
   useEffect(() => {
+    const property = properties.find((p) => p.id === Number(id));
     if (property) {
-      formik.setValues({
-        title: property.title,
+      setFormData({
+        name: property.name,
         type: property.type,
-        status: property.status,
         address: property.address,
-        latitude: property.latitude,
-        longitude: property.longitude,
         price: property.price.toString(),
-        size: property.size.toString(),
-        maintenanceFee: property.maintenanceFee?.toString() || '',
-        parking: property.parking || '',
-        moveInDate: property.moveInDate,
-        features: property.features || [],
-        description: property.description || '',
-        images: property.images || [],
+        status: property.status,
+        description: property.description,
+        features: property.features,
+        availableDate: property.availableDate,
+        agent: property.agent,
+        contact: property.contact,
       });
     }
-  }, [property]);
+  }, [id]);
 
   const handleAddressSelect = (address: string, latitude: number, longitude: number) => {
     formik.setFieldValue('address', address);
@@ -248,8 +283,8 @@ const PropertyEdit = () => {
                 required
               >
                 {propertyTypes.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
+                  <MenuItem key={option} value={option}>
+                    {option}
                   </MenuItem>
                 ))}
               </TextField>
@@ -268,8 +303,8 @@ const PropertyEdit = () => {
                 required
               >
                 {propertyStatuses.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
+                  <MenuItem key={option} value={option}>
+                    {option}
                   </MenuItem>
                 ))}
               </TextField>
@@ -394,12 +429,12 @@ const PropertyEdit = () => {
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {propertyFeatures.map((feature) => (
                   <Button
-                    key={feature.value}
-                    variant={formik.values.features.includes(feature.value) ? 'contained' : 'outlined'}
+                    key={feature}
+                    variant={formik.values.features.includes(feature) ? 'contained' : 'outlined'}
                     onClick={() => {
-                      const newFeatures = formik.values.features.includes(feature.value)
-                        ? formik.values.features.filter((f) => f !== feature.value)
-                        : [...formik.values.features, feature.value];
+                      const newFeatures = formik.values.features.includes(feature)
+                        ? formik.values.features.filter((f) => f !== feature)
+                        : [...formik.values.features, feature];
                       formik.setFieldValue('features', newFeatures);
                     }}
                     sx={{
@@ -409,7 +444,7 @@ const PropertyEdit = () => {
                       px: 2,
                     }}
                   >
-                    {feature.label}
+                    {feature}
                   </Button>
                 ))}
               </Box>

@@ -21,6 +21,9 @@ import {
   InputLabel,
   Select,
   FormHelperText,
+  Chip,
+  OutlinedInput,
+  SelectChangeEvent,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useFormik } from 'formik';
@@ -72,19 +75,30 @@ interface FormValues {
   floor: string;
   year: string;
   structure: string;
+  status: string;
+  agent: string;
+  contact: string;
 }
 
 const propertyTypes = [
-  { value: 'APARTMENT', label: '아파트' },
-  { value: 'HOUSE', label: '주택' },
-  { value: 'COMMERCIAL', label: '상가' },
-  { value: 'OFFICE', label: '사무실' },
+  '아파트',
+  '오피스텔',
+  '주택',
+  '상가',
+  '사무실',
+  '기타',
 ];
 
 const contractTypes = [
   { value: 'sale', label: '매매' },
   { value: 'monthlyRent', label: '월세' },
   { value: 'yearRent', label: '전세' },
+];
+
+const propertyStatuses = [
+  '임대중',
+  '계약대기',
+  '임대가능',
 ];
 
 const steps = ['기본 정보', '상세 정보', '추가 정보'];
@@ -136,6 +150,9 @@ const validationSchema = Yup.object({
   floor: Yup.string().required('건물 층수를 입력해주세요'),
   year: Yup.string().required('건물 연식을 입력해주세요'),
   structure: Yup.string().required('건물 구조를 선택해주세요'),
+  status: Yup.string().required('상태를 선택해주세요'),
+  agent: Yup.string().required('담당자를 입력해주세요'),
+  contact: Yup.string().required('연락처를 입력해주세요'),
 });
 
 const propertyFeatures = [
@@ -173,6 +190,29 @@ const PropertyForm = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormValues>({
+    title: '',
+    type: '',
+    contractType: 'monthlyRent',
+    address: '',
+    latitude: 0,
+    longitude: 0,
+    price: '',
+    size: '',
+    maintenanceFee: '',
+    parking: '',
+    moveInDate: '',
+    features: [],
+    description: '',
+    images: [],
+    direction: '',
+    floor: '',
+    year: '',
+    structure: '',
+    status: '',
+    agent: '',
+    contact: '',
+  });
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -194,6 +234,9 @@ const PropertyForm = () => {
       floor: '',
       year: '',
       structure: '',
+      status: '',
+      agent: '',
+      contact: '',
     } as FormValues,
     validationSchema,
     onSubmit: async (values: FormValues) => {
@@ -310,8 +353,8 @@ const PropertyForm = () => {
                 required
               >
                 {propertyTypes.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
+                  <MenuItem key={option} value={option}>
+                    {option}
                   </MenuItem>
                 ))}
               </TextField>
@@ -633,6 +676,37 @@ const PropertyForm = () => {
     }
   };
 
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectChange = (event: SelectChangeEvent<string>) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleFeaturesChange = (event: SelectChangeEvent<string[]>) => {
+    const { value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      features: typeof value === 'string' ? value.split(',') : value,
+    }));
+  };
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    // TODO: Implement form submission
+    console.log('Form data:', formData);
+    navigate('/properties');
+  };
+
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
       <Paper sx={{ p: 3 }}>
@@ -660,7 +734,7 @@ const PropertyForm = () => {
           </Alert>
         )}
 
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           {renderStepContent(activeStep)}
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, gap: 1 }}>
             {activeStep > 0 && (

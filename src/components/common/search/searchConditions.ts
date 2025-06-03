@@ -89,37 +89,61 @@ export const contractSearchConditions: SearchCondition[] = [
 // 고객 관리 검색 조건
 export const customerSearchConditions: SearchCondition[] = [
   {
-    field: 'type',
-    label: '고객 유형',
+    field: 'customerType',
+    label: '고객유형',
     type: 'select',
     options: [
-      { value: 'buyer', label: '매수자' },
-      { value: 'seller', label: '매도자' },
-      { value: 'tenant', label: '임차인' },
-      { value: 'landlord', label: '임대인' }
-    ]
-  },
-  {
-    field: 'grade',
-    label: '고객 등급',
-    type: 'select',
-    options: [
-      { value: 'vip', label: 'VIP' },
-      { value: 'gold', label: '골드' },
-      { value: 'silver', label: '실버' },
-      { value: 'bronze', label: '브론즈' }
-    ]
+      { value: 'all', label: '전체' },
+      { value: '매수자', label: '매수자' },
+      { value: '매도자', label: '매도자' },
+      { value: '임차인', label: '임차인' },
+      { value: '임대인', label: '임대인' },
+    ],
   },
   {
     field: 'status',
     label: '상태',
     type: 'select',
     options: [
-      { value: 'active', label: '활성' },
-      { value: 'inactive', label: '비활성' },
-      { value: 'blacklist', label: '블랙리스트' }
-    ]
-  }
+      { value: 'all', label: '전체' },
+      { value: '활성', label: '활성' },
+      { value: '비활성', label: '비활성' },
+      { value: '블랙리스트', label: '블랙리스트' },
+    ],
+  },
+  {
+    field: 'contractStatus',
+    label: '계약상태',
+    type: 'select',
+    options: [
+      { value: 'all', label: '전체' },
+      { value: '진행중', label: '진행중' },
+      { value: '완료', label: '완료' },
+      { value: '취소', label: '취소' },
+    ],
+  },
+  {
+    field: 'documentStatus',
+    label: '서류상태',
+    type: 'select',
+    options: [
+      { value: 'all', label: '전체' },
+      { value: '완료', label: '완료' },
+      { value: '진행중', label: '진행중' },
+    ],
+  },
+  {
+    field: 'dateRange',
+    label: '등록일',
+    type: 'select',
+    options: [
+      { value: 'all', label: '전체' },
+      { value: 'today', label: '오늘' },
+      { value: 'week', label: '이번 주' },
+      { value: 'month', label: '이번 달' },
+      { value: 'year', label: '올해' },
+    ],
+  },
 ];
 
 // 공지사항 검색 조건

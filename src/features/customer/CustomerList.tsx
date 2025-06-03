@@ -1,56 +1,11 @@
 import { useState } from 'react';
+import { Box, Button, Card, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Chip, Stack, Tooltip, TablePagination } from '@mui/material';
+import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, Visibility as ViewIcon, History as HistoryIcon } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Card,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  Button,
-  Chip,
-} from '@mui/material';
-import {
-  Add as AddIcon,
-  Edit as EditIcon,
-  Delete as DeleteIcon,
-} from '@mui/icons-material';
+import { customers } from '../../mocks/customers';
+import { format } from 'date-fns';
 import SearchPanel from '@/components/common/search/SearchPanel';
 import { customerSearchConditions } from '@/components/common/search/searchConditions';
-
-// 임시 목업 데이터
-const mockCustomers = [
-  {
-    id: 1,
-    name: '홍길동',
-    type: '매수희망',
-    phone: '010-1234-5678',
-    email: 'hong@example.com',
-    status: '활성',
-    lastContact: '2024-02-15',
-  },
-  {
-    id: 2,
-    name: '김철수',
-    type: '매도희망',
-    phone: '010-2345-6789',
-    email: 'kim@example.com',
-    status: '활성',
-    lastContact: '2024-02-14',
-  },
-  {
-    id: 3,
-    name: '이영희',
-    type: '임대희망',
-    phone: '010-3456-7890',
-    email: 'lee@example.com',
-    status: '비활성',
-    lastContact: '2024-02-10',
-  },
-];
 
 const CustomerList = () => {
   const navigate = useNavigate();
@@ -66,87 +21,169 @@ const CustomerList = () => {
     setPage(0);
   };
 
-  // const handleSearch = (value: string) => {
-  //   console.log('Search:', value);
-  // };
-
   const handleRowClick = (id: number) => {
     navigate(`/customers/${id}`);
   };
 
   return (
     <Card sx={{ mt: 3 }}>
-        <SearchPanel
-          conditions={customerSearchConditions}
-          placeholder="고객명, 연락처로 검색"
-          onSearch={(conditions) => {
-            console.log(JSON.stringify(conditions));
-          }}
-          onAdd={() => console.log('Add customer')}
-        />
+      <SearchPanel
+        conditions={customerSearchConditions}
+        placeholder="고객명, 연락처, 이메일로 검색"
+        onAdd={() => navigate('/customers/new')}
+        onSearch={(conditions) => {
+          console.log(JSON.stringify(conditions));
+        }}
+      />
       <TableContainer>
-        <Table>
+        <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>고객명</TableCell>
-              <TableCell>유형</TableCell>
+              <TableCell>고객번호</TableCell>
+              <TableCell>고객유형</TableCell>
+              <TableCell>고객정보</TableCell>
               <TableCell>연락처</TableCell>
               <TableCell>이메일</TableCell>
+              <TableCell>계약현황</TableCell>
+              <TableCell>서류현황</TableCell>
+              <TableCell>등록일</TableCell>
               <TableCell>상태</TableCell>
-              <TableCell>최근 연락일</TableCell>
-              <TableCell>관리</TableCell>
+              <TableCell align="center">관리</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockCustomers.map((customer) => (
-              <TableRow 
-                key={customer.id}
-                onClick={() => handleRowClick(customer.id)}
-                sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
-              >
-                <TableCell>{customer.name}</TableCell>
-                <TableCell>{customer.type}</TableCell>
-                <TableCell>{customer.phone}</TableCell>
-                <TableCell>{customer.email}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={customer.status}
-                    color={customer.status === '활성' ? 'success' : 'default'}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>{customer.lastContact}</TableCell>
-                <TableCell>
-                  <Button
-                    size="small"
-                    startIcon={<EditIcon />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('Edit:', customer.id);
-                    }}
-                  >
-                    수정
-                  </Button>
-                  <Button
-                    size="small"
-                    startIcon={<DeleteIcon />}
-                    color="error"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      console.log('Delete:', customer.id);
-                    }}
-                  >
-                    삭제
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {customers
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((customer) => (
+                <TableRow 
+                  key={customer.id}
+                  onClick={() => handleRowClick(customer.id)}
+                  sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}
+                >
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {customer.customerNumber}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={customer.type}
+                      size="small"
+                      color={
+                        customer.type === '매수자' ? 'primary' :
+                        customer.type === '매도자' ? 'secondary' :
+                        customer.type === '임차인' ? 'info' : 'success'
+                      }
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {customer.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" noWrap>
+                      {customer.address}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {customer.phone}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" noWrap>
+                      {customer.email}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={0.5}>
+                      {customer.contracts.map((contract) => (
+                        <Chip
+                          key={contract.id}
+                          label={`${contract.type} ${contract.status}`}
+                          size="small"
+                          color={
+                            contract.status === '완료' ? 'success' :
+                            contract.status === '진행중' ? 'warning' : 'error'
+                          }
+                          sx={{ height: 20, fontSize: '0.75rem' }}
+                        />
+                      ))}
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={0.5}>
+                      {customer.documents.map((doc, index) => (
+                        <Chip
+                          key={index}
+                          label={doc.name}
+                          size="small"
+                          color={doc.status === '완료' ? 'success' : 'warning'}
+                          sx={{ height: 20, fontSize: '0.75rem' }}
+                        />
+                      ))}
+                    </Stack>
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2">
+                      {format(new Date(customer.createdAt), 'MM/dd')}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip
+                      label={customer.status}
+                      size="small"
+                      color={
+                        customer.status === '활성'
+                          ? 'success'
+                          : customer.status === '비활성'
+                          ? 'warning'
+                          : 'error'
+                      }
+                    />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Tooltip title="상세보기">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRowClick(customer.id);
+                        }}
+                      >
+                        <ViewIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="수정">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/customers/${customer.id}/edit`);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="이력">
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/customers/${customer.id}/history`);
+                        }}
+                      >
+                        <HistoryIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         component="div"
-        count={mockCustomers.length}
+        count={customers.length}
         page={page}
         onPageChange={handleChangePage}
         rowsPerPage={rowsPerPage}

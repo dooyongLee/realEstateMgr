@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, Typography, Grid, Chip, Paper, Stepper, Step, StepLabel, Button, List, ListItem, ListItemIcon, ListItemText, Divider, Alert, LinearProgress, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import DetailLayout from '../../components/layout/DetailLayout';
-import { CheckCircle, Error, Warning, Info, ContentCopy } from '@mui/icons-material';
+import { CheckCircle, Error, Warning, Info, ContentCopy, Home as HomeIcon, LocationOn as LocationIcon, AttachMoney as MoneyIcon, CalendarToday as CalendarIcon, Person as PersonIcon, Phone as PhoneIcon, Description as DescriptionIcon, Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { ContractType, ContractStatus } from '@/types/contract';
 import { addMonths, differenceInDays, format } from 'date-fns';
+import { contracts } from '../../mocks/contracts';
 
 // 필수 서류 정의
 const requiredDocuments: Record<ContractType, Array<{ id: string; name: string; description: string }>> = {
@@ -31,10 +32,9 @@ const requiredDocuments: Record<ContractType, Array<{ id: string; name: string; 
 
 // 계약 상태 단계 정의
 const contractSteps = [
-  { id: 'DRAFT', label: '계약서 작성' },
-  { id: 'PENDING_REVIEW', label: '검토 중' },
-  { id: 'SIGNED', label: '서명 완료' },
-  { id: 'COMPLETED', label: '계약 완료' },
+  { id: '진행중', label: '진행중' },
+  { id: '완료', label: '완료' },
+  { id: '취소', label: '취소' },
 ];
 
 interface ContractDocument {
@@ -70,96 +70,22 @@ interface Contract {
   propertyStructure?: string;
 }
 
-// Mock data for development
-const mockContracts: Contract[] = [
-  {
-    id: 1,
-    propertyTitle: '강남 아파트',
-    propertyType: '아파트',
-    propertySize: '84.5㎡',
-    propertyLocation: '서울시 강남구',
-    tenantName: '홍길동',
-    tenantPhone: '010-1234-5678',
-    tenantEmail: 'hong@example.com',
-    startDate: '2024-03-01',
-    contractDate: '2024-02-20',
-    deposit: '5000만원',
-    monthlyRent: '200만원',
-    type: 'RENT',
-    status: 'SIGNED',
-    createdAt: '2024-02-15',
-    description: '강남역 도보 5분 거리에 위치한 3룸 아파트입니다.',
-    terms: [
-      '계약기간: 1년',
-      '월세 지불일: 매월 1일',
-      '관리비: 월 15만원',
-      '주차: 1대 가능',
-      '반려동물: 불가능',
-    ],
-    documents: [
-      { id: 'rent_contract', name: '임대차계약서', uploaded: true, uploadedAt: '2024-02-20' },
-      { id: 'property_cert', name: '부동산등기부등본', uploaded: true, uploadedAt: '2024-02-20' },
-      { id: 'commission_cert', name: '중개수수료 영수증', uploaded: false },
-    ],
-    notes: '임차인이 반려동물을 키우고 있어서, 계약 시 반려동물 관련 특별 조항을 추가했습니다. 또한 주차 공간이 제한적이어서, 주차 관련 규정을 명확히 했습니다.',
-    propertyFloor: '3층',
-    propertyDirection: '남향',
-    propertyYear: '2015년',
-    propertyStructure: '철근콘크리트',
-  },
-  {
-    id: 2,
-    propertyTitle: '송파 오피스텔',
-    propertyType: '오피스텔',
-    propertySize: '59.8㎡',
-    propertyLocation: '서울시 송파구',
-    tenantName: '김철수',
-    tenantPhone: '010-9876-5432',
-    tenantEmail: 'kim@example.com',
-    startDate: '2024-04-01',
-    contractDate: '2024-03-14',
-    deposit: '3000만원',
-    monthlyRent: '150만원',
-    type: 'RENT',
-    status: 'PENDING_REVIEW',
-    createdAt: '2024-03-14',
-    description: '잠실역 도보 3분 거리에 위치한 2룸 오피스텔입니다.',
-    terms: [
-      '계약기간: 1년',
-      '월세 지불일: 매월 1일',
-      '관리비: 월 10만원',
-      '주차: 불가능',
-      '반려동물: 가능',
-    ],
-    documents: [
-      { id: 'rent_contract', name: '임대차계약서', uploaded: false },
-      { id: 'property_cert', name: '부동산등기부등본', uploaded: false },
-      { id: 'commission_cert', name: '중개수수료 영수증', uploaded: false },
-    ],
-    notes: '임차인이 외국인이라 계약서를 영문으로도 작성했습니다. 또한 관리비에 인터넷 요금이 포함되어 있어 별도 안내가 필요합니다.',
-    propertyFloor: '2층',
-    propertyDirection: '북향',
-    propertyYear: '2010년',
-    propertyStructure: '콘크리트',
-  },
-];
-
 const ContractDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const contract = mockContracts.find(c => c.id === Number(id));
-  const [statusChangeDialog, setStatusChangeDialog] = React.useState(false);
-  const [newStatus, setNewStatus] = React.useState<ContractStatus | null>(null);
-  const [snackbar, setSnackbar] = React.useState({ open: false, message: '' });
+  const contract = contracts.find(c => c.id === Number(id));
+  const [statusChangeDialog, setStatusChangeDialog] = useState(false);
+  const [newStatus, setNewStatus] = useState<ContractStatus | null>(null);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
 
   if (!contract) {
     return <Typography>계약을 찾을 수 없습니다.</Typography>;
   }
 
   // 계약 만료일 계산
-  const isLeaseOrRent = contract.type === 'LEASE' || contract.type === 'RENT';
+  const isLeaseOrRent = contract.type === '임대';
   const startDate = new Date(contract.startDate);
-  const endDate = addMonths(startDate, 12); // 1년 계약 기준
+  const endDate = contract.endDate ? new Date(contract.endDate) : addMonths(startDate, 12); // 1년 계약 기준
   const daysUntilExpiry = differenceInDays(endDate, new Date());
   const showExpiryAlert = isLeaseOrRent && daysUntilExpiry <= 60 && daysUntilExpiry > 0;
 
@@ -177,18 +103,16 @@ const ContractDetail = () => {
     setStatusChangeDialog(false);
   };
 
-  const getStatusColor = (status: ContractStatus) => {
+  const getStatusColor = (status: ContractStatus): 'success' | 'warning' | 'error' => {
     switch (status) {
-      case 'COMPLETED':
+      case '완료':
         return 'success';
-      case 'SIGNED':
-        return 'primary';
-      case 'PENDING_REVIEW':
+      case '진행중':
         return 'warning';
-      case 'CANCELLED':
+      case '취소':
         return 'error';
       default:
-        return 'secondary';
+        return 'warning';
     }
   };
 
@@ -196,7 +120,22 @@ const ContractDetail = () => {
     return contractSteps.findIndex(step => step.id === status);
   };
 
+  // 한글 타입을 영문 타입으로 변환
+  const getContractTypeKey = (type: string): ContractType => {
+    switch (type) {
+      case '매매':
+        return 'SALE';
+      case '임대':
+        return 'LEASE';
+      case '월세':
+        return 'RENT';
+      default:
+        return 'SALE'; // fallback
+    }
+  };
+
   const getDocumentStatus = (docId: string) => {
+    const typeKey = getContractTypeKey(contract.type);
     const doc = contract.documents?.find(d => d.id === docId);
     if (!doc) return { icon: <Error color="error" />, text: '미제출' };
     if (doc.uploaded) return { icon: <CheckCircle color="success" />, text: '제출완료' };
@@ -204,9 +143,10 @@ const ContractDetail = () => {
   };
 
   const getDocumentProgress = () => {
-    const totalDocs = requiredDocuments[contract.type].length;
+    const typeKey = getContractTypeKey(contract.type);
+    const totalDocs = requiredDocuments[typeKey]?.length ?? 0;
     const uploadedDocs = contract.documents.filter(d => d.uploaded).length;
-    return (uploadedDocs / totalDocs) * 100;
+    return totalDocs === 0 ? 0 : (uploadedDocs / totalDocs) * 100;
   };
 
   const getImportantTerms = () => {
@@ -273,10 +213,9 @@ const ContractDetail = () => {
             </Stepper>
             <Box sx={{ mt: 2, textAlign: 'center' }}>
               <Typography variant="body2" color="text.secondary">
-                {contract.status === 'COMPLETED' && '계약이 완료되었습니다.'}
-                {contract.status === 'SIGNED' && '계약서 서명이 완료되었습니다.'}
-                {contract.status === 'PENDING_REVIEW' && '계약서 검토가 진행 중입니다.'}
-                {contract.status === 'DRAFT' && '계약서 작성이 진행 중입니다.'}
+                {contract.status === '완료' && '계약이 완료되었습니다.'}
+                {contract.status === '진행중' && '계약이 진행 중입니다.'}
+                {contract.status === '취소' && '계약이 취소되었습니다.'}
               </Typography>
             </Box>
           </Paper>
@@ -419,11 +358,11 @@ const ContractDetail = () => {
                 sx={{ height: 8, borderRadius: 4, mb: 1 }}
               />
               <Typography variant="body2" color="text.secondary" align="right">
-                {contract.documents.filter(d => d.uploaded).length} / {requiredDocuments[contract.type].length} 서류 제출 완료
+                {contract.documents.filter(d => d.uploaded).length} / {requiredDocuments[getContractTypeKey(contract.type)].length} 서류 제출 완료
               </Typography>
             </Box>
             <List>
-              {requiredDocuments[contract.type]?.map((doc) => {
+              {requiredDocuments[getContractTypeKey(contract.type)]?.map((doc) => {
                 const status = getDocumentStatus(doc.id);
                 return (
                   <React.Fragment key={doc.id}>
@@ -905,7 +844,7 @@ const ContractDetail = () => {
         <DialogActions>
           <Button onClick={() => setStatusChangeDialog(false)}>취소</Button>
           <Button onClick={confirmStatusChange} variant="contained">
-            변경
+            확인
           </Button>
         </DialogActions>
       </Dialog>

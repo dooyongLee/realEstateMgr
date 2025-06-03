@@ -50,4 +50,5 @@ export interface ContractFormData {
   terms: string[];
   documents: File[];
   notes: string;
+  status: ContractStatus;
 } 

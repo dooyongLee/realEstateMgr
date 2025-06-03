@@ -31,6 +31,7 @@ import {
   FormControlLabel,
   Switch,
   Stack,
+  SelectChangeEvent,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -43,9 +44,10 @@ import {
 } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { ContractType as ContractTypeEnum, ContractStatus } from '@/types/contract';
+import { ContractType, ContractStatus, ContractFormData } from '@/types/contract';
 import { addMonths, differenceInDays, format } from 'date-fns';
 import { DatePicker } from '@mui/x-date-pickers';
+import { contracts } from '../../mocks/contracts';
 
 // 계약 상태 단계 정의
 const contractSteps = [
@@ -56,7 +58,7 @@ const contractSteps = [
 ];
 
 // 필수 서류 정의
-const requiredDocuments: Record<ContractTypeEnum, Array<{ id: string; name: string; description: string }>> = {
+const requiredDocuments: Record<ContractType, Array<{ id: string; name: string; description: string }>> = {
   SALE: [
     { id: 'sale_contract', name: '매매계약서', description: '매매계약서 원본' },
     { id: 'property_cert', name: '부동산등기부등본', description: '최근 발급된 등기부등본' },
@@ -97,7 +99,7 @@ interface ContractFormValues {
   contractDate: Date | null;
   deposit: string;
   monthlyRent: string;
-  type: ContractTypeEnum;
+  type: ContractType;
   status: ContractStatus;
   description: string;
   terms: string[];
@@ -143,63 +145,6 @@ const validationSchema = Yup.object({
   propertyStructure: Yup.string(),
 });
 
-// Mock data for development
-const mockContract: ContractFormValues = {
-  propertyTitle: '강남 아파트',
-  propertyType: '아파트',
-  propertySize: '84.5㎡',
-  propertyLocation: '서울시 강남구',
-  tenantName: '홍길동',
-  tenantPhone: '010-1234-5678',
-  tenantEmail: 'hong@example.com',
-  startDate: new Date('2024-03-01'),
-  contractDate: new Date('2024-02-20'),
-  deposit: '5000만원',
-  monthlyRent: '200만원',
-  type: 'RENT',
-  status: 'SIGNED',
-  description: '강남역 도보 5분 거리에 위치한 3룸 아파트입니다.',
-  terms: [
-    '계약기간: 1년',
-    '월세 지불일: 매월 1일',
-    '관리비: 월 15만원',
-    '주차: 1대 가능',
-    '반려동물: 불가능',
-  ],
-  documents: [
-    { id: 'rent_contract', name: '임대차계약서', uploaded: true, uploadedAt: '2024-02-20' },
-    { id: 'property_cert', name: '부동산등기부등본', uploaded: true, uploadedAt: '2024-02-20' },
-    { id: 'commission_cert', name: '중개수수료 영수증', uploaded: false },
-  ],
-  notes: '임차인이 반려동물을 키우고 있어서, 계약 시 반려동물 관련 특별 조항을 추가했습니다. 또한 주차 공간이 제한적이어서, 주차 관련 규정을 명확히 했습니다.',
-  propertyFloor: '3층',
-  propertyDirection: '남향',
-  propertyYear: '2015년',
-  propertyStructure: '철근콘크리트',
-};
-
-interface ContractTypeOption {
-  value: string;
-  label: string;
-}
-
-interface PaymentMethodOption {
-  value: string;
-  label: string;
-}
-
-const contractTypeOptions: ContractTypeOption[] = [
-  { value: 'monthly', label: '월세' },
-  { value: 'jeonse', label: '전세' },
-  { value: 'sale', label: '매매' },
-];
-
-const paymentMethodOptions: PaymentMethodOption[] = [
-  { value: 'bank', label: '계좌이체' },
-  { value: 'cash', label: '현금' },
-  { value: 'check', label: '어음' },
-];
-
 const ContractEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -224,27 +169,46 @@ const ContractEdit = () => {
     console.log('ContractEdit component effect', { id });
   }, [id]);
 
-  const formik = useFormik<ContractFormValues>({
-    initialValues: mockContract,
-    validationSchema,
-    onSubmit: async (values) => {
-      try {
-        setIsSubmitting(true);
-        setError(null);
-        // TODO: API 호출
-        console.log('Form submitted:', values);
-        setSnackbar({
-          open: true,
-          message: '계약이 성공적으로 수정되었습니다.'
-        });
-        navigate('/contracts');
-      } catch (err) {
-        setError('계약 수정 중 오류가 발생했습니다. 다시 시도해주세요.');
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
+  const [formData, setFormData] = useState<ContractFormData>({
+    propertyId: 0,
+    customerId: 0,
+    type: 'SALE',
+    startDate: new Date(),
+    price: 0,
+    deposit: 0,
+    monthlyRent: 0,
+    commission: 0,
+    description: '',
+    terms: [],
+    documents: [],
+    notes: '',
+    status: 'DRAFT',
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'propertyId' || name === 'customerId' || name === 'price' || name === 'deposit' || name === 'monthlyRent' || name === 'commission'
+        ? Number(value)
+        : value,
+    }));
+  };
+
+  const handleDateChange = (name: string) => (date: Date | null) => {
+    if (date) {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: date,
+      }));
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // TODO: Implement contract update logic
+    navigate('/contracts');
+  };
 
   const getStatusColor = (status: ContractStatus) => {
     switch (status) {
@@ -265,22 +229,9 @@ const ContractEdit = () => {
     return contractSteps.findIndex(step => step.id === status);
   };
 
-  const getDocumentStatus = (docId: string) => {
-    const doc = formik.values.documents?.find(d => d.id === docId);
-    if (!doc) return { icon: <Error color="error" />, text: '미제출' };
-    if (doc.uploaded) return { icon: <CheckCircle color="success" />, text: '제출완료' };
-    return { icon: <Error color="error" />, text: '미제출' };
-  };
-
-  const getDocumentProgress = () => {
-    const totalDocs = requiredDocuments[formik.values.type].length;
-    const uploadedDocs = formik.values.documents.filter(d => d.uploaded).length;
-    return (uploadedDocs / totalDocs) * 100;
-  };
-
   // 계약 만료일 계산
-  const isLeaseOrRent = formik.values.type === 'LEASE' || formik.values.type === 'RENT';
-  const startDate = formik.values.startDate;
+  const isLeaseOrRent = formData.type === 'LEASE' || formData.type === 'RENT';
+  const startDate = formData.startDate;
   const endDate = startDate ? addMonths(startDate, 12) : null; // 1년 계약 기준
   const daysUntilExpiry = endDate ? differenceInDays(endDate, new Date()) : 0;
   const showExpiryAlert = isLeaseOrRent && daysUntilExpiry <= 60 && daysUntilExpiry > 0;
@@ -318,7 +269,7 @@ const ContractEdit = () => {
           </Alert>
         )}
 
-        <form onSubmit={formik.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <Grid container spacing={3}>
             {/* 계약 만료 알림 */}
             {showExpiryAlert && (
@@ -355,12 +306,12 @@ const ContractEdit = () => {
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={6}>
-                    <FormControl fullWidth error={formik.touched.status && Boolean(formik.errors.status)}>
+                    <FormControl fullWidth error={formData.status && Boolean(formData.status)}>
                       <InputLabel>계약 상태</InputLabel>
                       <Select
                         name="status"
-                        value={formik.values.status}
-                        onChange={formik.handleChange}
+                        value={formData.status}
+                        onChange={handleChange}
                         label="계약 상태"
                       >
                         {contractSteps.map((step) => (
@@ -369,13 +320,13 @@ const ContractEdit = () => {
                           </MenuItem>
                         ))}
                       </Select>
-                      {formik.touched.status && formik.errors.status && (
-                        <FormHelperText>{formik.errors.status}</FormHelperText>
+                      {formData.status && (
+                        <FormHelperText>{formData.status}</FormHelperText>
                       )}
                     </FormControl>
                   </Grid>
                 </Grid>
-                <Stepper activeStep={getCurrentStep(formik.values.status)} alternativeLabel sx={{ mt: 3 }}>
+                <Stepper activeStep={getCurrentStep(formData.status)} alternativeLabel sx={{ mt: 3 }}>
                   {contractSteps.map((step) => (
                     <Step key={step.id}>
                       <StepLabel>{step.label}</StepLabel>
@@ -395,35 +346,45 @@ const ContractEdit = () => {
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="매물명"
-                      value={formik.values.propertyTitle}
-                      disabled
+                      label="매물 ID"
+                      name="propertyId"
+                      type="number"
+                      value={formData.propertyId}
+                      onChange={handleChange}
+                      required
                     />
                   </Grid>
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label="주소"
-                      value={formik.values.propertyLocation}
-                      disabled
+                      label="고객 ID"
+                      name="customerId"
+                      type="number"
+                      value={formData.customerId}
+                      onChange={handleChange}
+                      required
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  <Grid item xs={12}>
                     <TextField
                       fullWidth
                       label="매물 유형"
-                      value={formik.values.propertyType}
-                      disabled
+                      name="type"
+                      value={formData.type}
+                      onChange={handleChange}
+                      required
                     />
                   </Grid>
-                  <Grid item xs={12} md={6}>
+                  {/* <Grid item xs={12}>
                     <TextField
                       fullWidth
                       label="전용면적"
-                      value={formik.values.propertySize}
-                      disabled
+                      name="propertySize"
+                      value={formData.propertySize}
+                      onChange={handleChange}
+                      required
                     />
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               </Paper>
             </Grid>
@@ -439,48 +400,54 @@ const ContractEdit = () => {
                     <TextField
                       fullWidth
                       label="방 개수"
-                      value={formik.values.propertyStructure}
-                      disabled
+                      name="propertyStructure"
+                      value={formData.propertyStructure}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       label="화장실 개수"
-                      value={formik.values.propertyStructure}
-                      disabled
+                      name="propertyStructure"
+                      value={formData.propertyStructure}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       label="주차 공간"
-                      value={formik.values.propertyStructure}
-                      disabled
+                      name="propertyStructure"
+                      value={formData.propertyStructure}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       label="층수"
-                      value={formik.values.propertyFloor}
-                      disabled
+                      name="propertyFloor"
+                      value={formData.propertyFloor}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       label="준공년도"
-                      value={formik.values.propertyYear}
-                      disabled
+                      name="propertyYear"
+                      value={formData.propertyYear}
+                      onChange={handleChange}
                     />
                   </Grid>
                   <Grid item xs={12} md={6}>
                     <TextField
                       fullWidth
                       label="건물 구조"
-                      value={formik.values.propertyStructure}
-                      disabled
+                      name="propertyStructure"
+                      value={formData.propertyStructure}
+                      onChange={handleChange}
                     />
                   </Grid>
                 </Grid>
@@ -500,7 +467,7 @@ const ContractEdit = () => {
                       계약 유형
                     </Typography>
                     <Stack direction="row" spacing={1}>
-                      {contractTypeOptions.map((type) => (
+                      {/* contractTypeOptions.map((type) => (
                         <Chip
                           key={type.value}
                           label={type.label}
@@ -508,7 +475,7 @@ const ContractEdit = () => {
                           color={selectedContractType === type.value ? 'primary' : 'default'}
                           sx={{ minWidth: 100 }}
                         />
-                      ))}
+                      )) */}
                     </Stack>
                   </Grid>
 
@@ -547,6 +514,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="매매가"
+                              name="deposit"
                               value={deposit}
                               onChange={(e) => setDeposit(e.target.value)}
                               InputProps={{
@@ -558,6 +526,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="중개수수료"
+                              name="commission"
                               value={maintenanceFee}
                               onChange={(e) => setMaintenanceFee(e.target.value)}
                               InputProps={{
@@ -573,6 +542,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="전세금"
+                              name="deposit"
                               value={deposit}
                               onChange={(e) => setDeposit(e.target.value)}
                               InputProps={{
@@ -584,6 +554,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="중개수수료"
+                              name="commission"
                               value={maintenanceFee}
                               onChange={(e) => setMaintenanceFee(e.target.value)}
                               InputProps={{
@@ -599,6 +570,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="보증금"
+                              name="deposit"
                               value={deposit}
                               onChange={(e) => setDeposit(e.target.value)}
                               InputProps={{
@@ -610,6 +582,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="월세"
+                              name="monthlyRent"
                               value={monthlyRent}
                               onChange={(e) => setMonthlyRent(e.target.value)}
                               InputProps={{
@@ -621,6 +594,7 @@ const ContractEdit = () => {
                             <TextField
                               fullWidth
                               label="관리비"
+                              name="commission"
                               value={maintenanceFee}
                               onChange={(e) => setMaintenanceFee(e.target.value)}
                               InputProps={{
@@ -641,7 +615,7 @@ const ContractEdit = () => {
                     <Grid container spacing={2}>
                       <Grid item xs={12}>
                         <Stack direction="row" spacing={1}>
-                          {paymentMethodOptions.map((method) => (
+                          {/* paymentMethodOptions.map((method) => (
                             <Chip
                               key={method.value}
                               label={method.label}
@@ -649,7 +623,7 @@ const ContractEdit = () => {
                               color={selectedPaymentMethod === method.value ? 'primary' : 'default'}
                               sx={{ minWidth: 100 }}
                             />
-                          ))}
+                          )) */}
                         </Stack>
                       </Grid>
                       {selectedContractType === 'monthly' && (
@@ -657,6 +631,7 @@ const ContractEdit = () => {
                           <TextField
                             fullWidth
                             label="결제일"
+                            name="paymentDay"
                             value={paymentDay}
                             onChange={(e) => setPaymentDay(e.target.value)}
                             InputProps={{
@@ -690,6 +665,7 @@ const ContractEdit = () => {
                           <TextField
                             fullWidth
                             label="갱신 기간"
+                            name="renewalPeriod"
                             value={renewalPeriod}
                             onChange={(e) => setRenewalPeriod(e.target.value)}
                             disabled={!isAutoRenewal}
@@ -732,15 +708,15 @@ const ContractEdit = () => {
                 <Box sx={{ mb: 3 }}>
                   <LinearProgress 
                     variant="determinate" 
-                    value={getDocumentProgress()} 
+                    value={0} 
                     sx={{ height: 8, borderRadius: 4, mb: 1 }}
                   />
                   <Typography variant="body2" color="text.secondary" align="right">
-                    {formik.values.documents.filter(d => d.uploaded).length} / {requiredDocuments[formik.values.type].length} 서류 제출 완료
+                    0 / {requiredDocuments[formData.type].length} 서류 제출 완료
                   </Typography>
                 </Box>
                 <List>
-                  {requiredDocuments[formik.values.type]?.map((doc) => {
+                  {/* requiredDocuments[formData.type]?.map((doc) => {
                     const status = getDocumentStatus(doc.id);
                     return (
                       <React.Fragment key={doc.id}>
@@ -753,13 +729,17 @@ const ContractEdit = () => {
                           <Button
                             variant="outlined"
                             size="small"
-                            onClick={() => {
-                              const updatedDocuments = formik.values.documents.map(d =>
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const updatedDocuments = formData.documents.map(d =>
                                 d.id === doc.id
                                   ? { ...d, uploaded: !d.uploaded, uploadedAt: !d.uploaded ? format(new Date(), 'yyyy-MM-dd') : undefined }
                                   : d
                               );
-                              formik.setFieldValue('documents', updatedDocuments);
+                              setFormData(prev => ({
+                                ...prev,
+                                documents: updatedDocuments,
+                              }));
                             }}
                           >
                             {status.text === '제출완료' ? '제출 취소' : '제출하기'}
@@ -768,7 +748,7 @@ const ContractEdit = () => {
                         <Divider />
                       </React.Fragment>
                     );
-                  })}
+                  }) */}
                 </List>
               </Paper>
             </Grid>
@@ -783,10 +763,10 @@ const ContractEdit = () => {
                   fullWidth
                   label="메모"
                   name="notes"
-                  value={formik.values.notes}
-                  onChange={formik.handleChange}
-                  error={formik.touched.notes && Boolean(formik.errors.notes)}
-                  helperText={formik.touched.notes && formik.errors.notes}
+                  value={formData.notes}
+                  onChange={handleChange}
+                  error={formData.notes && Boolean(formData.notes)}
+                  helperText={formData.notes}
                   multiline
                   rows={4}
                 />

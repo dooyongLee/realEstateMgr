@@ -13,6 +13,7 @@ const PropertyDetail = lazy(() => import('@/features/property/PropertyDetail'));
 const ContractPage = lazy(() => import('@/features/contract/ContractPage'));
 const ContractDetail = lazy(() => import('@/features/contract/ContractDetail'));
 const ContractEdit = lazy(() => import('@/features/contract/ContractEdit'));
+const BoardPage = lazy(() => import('@/features/board/BoardPage'));
 // const Profile = lazy(() => import('@/pages/Profile'));
 // const NotFound = lazy(() => import('@/pages/NotFound'));
 
@@ -80,6 +81,10 @@ const router = createBrowserRouter([
         element: <RouteWrapper><ContractEdit /></RouteWrapper>,
       },
     ],
+  },
+  {
+    path: '/board',
+    element: <RouteWrapper><BoardPage /></RouteWrapper>,
   },
   {
     path: '/profile',

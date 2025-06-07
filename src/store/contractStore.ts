@@ -29,7 +29,7 @@ interface BookingState {
   clearError: () => void;
 }
 
-export const useBookingStore = create<BookingState>((set) => ({
+const useContractStore = create<BookingState>((set) => ({
   bookings: [],
   selectedBooking: null,
   totalBookings: 0,
@@ -64,7 +64,7 @@ export const useBookingStore = create<BookingState>((set) => ({
       const response = await apiClient.get<Booking>(`${API_ENDPOINTS.BOOKINGS.BASE}/${id}`);
       
       set({
-        selectedBooking: response.data,
+        selectedBooking: response,
         isLoading: false,
       });
     } catch (error: any) {
@@ -81,7 +81,7 @@ export const useBookingStore = create<BookingState>((set) => ({
       const response = await apiClient.post<Booking>(API_ENDPOINTS.BOOKINGS.BASE, bookingData);
       
       set((state) => ({
-        bookings: [response.data, ...state.bookings],
+        bookings: [response, ...state.bookings],
         isLoading: false,
       }));
     } catch (error: any) {
@@ -115,4 +115,6 @@ export const useBookingStore = create<BookingState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
-})); 
+}));
+
+export default useContractStore;

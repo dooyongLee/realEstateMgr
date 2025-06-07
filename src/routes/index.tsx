@@ -19,6 +19,11 @@ import CustomerDetail from '@/features/customer/CustomerDetail';
 import AdminPage from '@/features/admin/AdminPage';
 import AdminLayout from '@/features/admin/AdminLayout';
 import RealtorManagement from '@/features/admin/RealtorManagement';
+import Layout from '@/components/layout/Layout';
+import CustomerList from '@/features/customer/CustomerList';
+import PropertyList from '@/features/property/PropertyList';
+import PropertyForm from '@/features/property/PropertyForm';
+import ContractList from '@/features/contract/ContractList';
 
 const router = createBrowserRouter([
   {
@@ -69,7 +74,8 @@ const router = createBrowserRouter([
               {
                 path: ':id',
                 element: <ContractDetail />,
-              },              {
+              },
+              {
                 path: ':id/edit',
                 element: <ContractEdit />,
               },
@@ -113,6 +119,37 @@ const router = createBrowserRouter([
             element: <Login />,
           },
         ],
+      },
+    ],
+  },
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      {
+        path: 'customers',
+        element: <CustomerList />,
+      },
+      {
+        path: 'properties',
+        children: [
+          {
+            index: true,
+            element: <PropertyList />,
+          },
+          {
+            path: 'new',
+            element: <PropertyForm />,
+          },
+          {
+            path: ':id/edit',
+            element: <PropertyForm />,
+          },
+        ],
+      },
+      {
+        path: 'contracts',
+        element: <ContractList />,
       },
     ],
   },

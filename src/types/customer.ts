@@ -4,7 +4,7 @@ export type CustomerType = 'buyer' | 'tenant';
 export type CustomerStatus = 'active' | 'inactive';
 
 export interface Customer {
-  id: number;
+  id: string;
   name: string;
   type: CustomerType;
   phone: string;
@@ -14,4 +14,4 @@ export interface Customer {
   updatedAt: string;
   activeContracts?: Contract[];
   completedContracts?: Contract[];
-} 
+}

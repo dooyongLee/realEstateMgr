@@ -211,4 +211,31 @@ export const defaultSearchConditions: SearchCondition[] = [
       { value: 'custom', label: '직접 입력' }
     ]
   }
+];
+
+// 자유게시판 검색 조건
+export const boardSearchConditions: SearchCondition[] = [
+  {
+    name: 'searchType',
+    label: '검색 유형',
+    type: 'select',
+    options: [
+      { value: 'title', label: '제목' },
+      { value: 'content', label: '내용' },
+      { value: 'author', label: '작성자' }
+    ],
+    defaultValue: 'title'
+  },
+  {
+    name: 'startDate',
+    label: '시작일',
+    type: 'date',
+    defaultValue: ''
+  },
+  {
+    name: 'endDate',
+    label: '종료일',
+    type: 'date',
+    defaultValue: ''
+  }
 ]; 

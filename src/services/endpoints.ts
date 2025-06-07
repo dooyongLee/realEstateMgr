@@ -27,9 +27,18 @@ export const API_ENDPOINTS = {
     USER_BOOKINGS: '/bookings/user',
   },
 
+  // Customers
+  CUSTOMERS: {
+    LIST: '/customers',
+    DETAIL: (id: string) => `/customers/${id}`,
+    CREATE: '/customers',
+    UPDATE: (id: string) => `/customers/${id}`,
+    DELETE: (id: string) => `/customers/${id}`,
+  },
+
   // Reviews
   REVIEWS: {
     BASE: '/reviews',
     PROPERTY_REVIEWS: (propertyId: string) => `/reviews/property/${propertyId}`,
   },
-} as const; 
+} as const;

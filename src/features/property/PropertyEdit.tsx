@@ -10,6 +10,7 @@ import FileUpload from '@/components/common/FileUpload';
 import { useProperty } from '@/hooks/useProperty';
 import { Property } from '@/types/property';
 import { properties } from '../../mocks/properties';
+import PropertyImageGallery from '@/components/layout/PropertyImageGallery';
 
 interface FormValues {
   title: string;
@@ -85,7 +86,7 @@ const propertyFeatures = [
   '공용지하실',
 ];
 
-const steps = ['기본 정보', '상세 정보', '추가 정보'];
+const steps = ['기본 정보', '상세 정보'];
 
 const validationSchema = Yup.object({
   title: Yup.string().required('매물 제목을 입력해주세요').max(100, '100자 이내로 입력해주세요'),
@@ -162,6 +163,7 @@ const PropertyEdit = () => {
           price: Number(values.price),
           size: Number(values.size),
           maintenanceFee: values.maintenanceFee ? Number(values.maintenanceFee) : undefined,
+          images: values.images.map(file => file.name),
         };
 
         if (id) {
@@ -243,9 +245,7 @@ const PropertyEdit = () => {
       case 0:
         return ['title', 'type', 'status', 'address'];
       case 1:
-        return ['price', 'size', 'maintenanceFee', 'parking', 'moveInDate'];
-      case 2:
-        return ['features', 'description', 'images'];
+        return ['price', 'size', 'maintenanceFee', 'parking', 'moveInDate', 'features', 'description', 'images'];
       default:
         return [];
     }
@@ -263,58 +263,50 @@ const PropertyEdit = () => {
                 name="title"
                 value={formik.values.title}
                 onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
                 error={formik.touched.title && Boolean(formik.errors.title)}
                 helperText={formik.touched.title && formik.errors.title}
-                required
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
-                label="매물 유형"
-                name="type"
-                value={formik.values.type}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.type && Boolean(formik.errors.type)}
-                helperText={formik.touched.type && formik.errors.type}
-                required
-              >
-                {propertyTypes.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <FormControl fullWidth error={formik.touched.type && Boolean(formik.errors.type)}>
+                <InputLabel>매물 유형</InputLabel>
+                <Select
+                  name="type"
+                  value={formik.values.type}
+                  onChange={formik.handleChange}
+                  label="매물 유형"
+                >
+                  {propertyTypes.map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                select
-                label="매물 상태"
-                name="status"
-                value={formik.values.status}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.status && Boolean(formik.errors.status)}
-                helperText={formik.touched.status && formik.errors.status}
-                required
-              >
-                {propertyStatuses.map((option) => (
-                  <MenuItem key={option} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-              </TextField>
+              <FormControl fullWidth error={formik.touched.status && Boolean(formik.errors.status)}>
+                <InputLabel>매물 상태</InputLabel>
+                <Select
+                  name="status"
+                  value={formik.values.status}
+                  onChange={formik.handleChange}
+                  label="매물 상태"
+                >
+                  {propertyStatuses.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <KakaoAddressSearch
-                value={formik.values.address}
                 onAddressSelect={handleAddressSelect}
-                error={Boolean(formik.touched.address && formik.errors.address)}
-                helperText={formik.touched.address ? formik.errors.address : undefined}
+                value={formik.values.address}
+                error={formik.touched.address && Boolean(formik.errors.address)}
+                helperText={formik.touched.address && formik.errors.address as string}
               />
             </Grid>
           </Grid>
@@ -326,24 +318,14 @@ const PropertyEdit = () => {
               <TextField
                 fullWidth
                 label="가격"
-                type="number"
                 name="price"
+                type="number"
                 value={formik.values.price}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === '' || /^\d*$/.test(value)) {
-                    formik.setFieldValue('price', value);
-                  }
-                }}
-                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
                 error={formik.touched.price && Boolean(formik.errors.price)}
                 helperText={formik.touched.price && formik.errors.price}
-                required
-                inputProps={{
-                  onFocus: (e) => e.target.select()
-                }}
                 InputProps={{
-                  endAdornment: <InputAdornment position="end">만원</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">₩</InputAdornment>,
                 }}
               />
             </Grid>
@@ -351,22 +333,12 @@ const PropertyEdit = () => {
               <TextField
                 fullWidth
                 label="면적"
-                type="number"
                 name="size"
+                type="number"
                 value={formik.values.size}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === '' || /^\d*$/.test(value)) {
-                    formik.setFieldValue('size', value);
-                  }
-                }}
-                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
                 error={formik.touched.size && Boolean(formik.errors.size)}
                 helperText={formik.touched.size && formik.errors.size}
-                required
-                inputProps={{
-                  onFocus: (e) => e.target.select()
-                }}
                 InputProps={{
                   endAdornment: <InputAdornment position="end">㎡</InputAdornment>,
                 }}
@@ -376,23 +348,14 @@ const PropertyEdit = () => {
               <TextField
                 fullWidth
                 label="관리비"
-                type="number"
                 name="maintenanceFee"
+                type="number"
                 value={formik.values.maintenanceFee}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === '' || /^\d*$/.test(value)) {
-                    formik.setFieldValue('maintenanceFee', value);
-                  }
-                }}
-                onBlur={formik.handleBlur}
+                onChange={formik.handleChange}
                 error={formik.touched.maintenanceFee && Boolean(formik.errors.maintenanceFee)}
                 helperText={formik.touched.maintenanceFee && formik.errors.maintenanceFee}
-                inputProps={{
-                  onFocus: (e) => e.target.select()
-                }}
                 InputProps={{
-                  endAdornment: <InputAdornment position="end">만원</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">₩</InputAdornment>,
                 }}
               />
             </Grid>
@@ -403,10 +366,8 @@ const PropertyEdit = () => {
                 name="parking"
                 value={formik.values.parking}
                 onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
                 error={formik.touched.parking && Boolean(formik.errors.parking)}
                 helperText={formik.touched.parking && formik.errors.parking}
-                placeholder="예: 1대 가능"
               />
             </Grid>
             <Grid item xs={12}>
@@ -416,57 +377,44 @@ const PropertyEdit = () => {
                 onChange={(date) => formik.setFieldValue('moveInDate', date)}
                 error={formik.touched.moveInDate && Boolean(formik.errors.moveInDate)}
                 helperText={formik.touched.moveInDate && formik.errors.moveInDate}
-                required
-                minDate={new Date()}
               />
             </Grid>
-          </Grid>
-        );
-      case 2:
-        return (
-          <Grid container spacing={3}>
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {propertyFeatures.map((feature) => (
-                  <Button
-                    key={feature}
-                    variant={formik.values.features.includes(feature) ? 'contained' : 'outlined'}
-                    onClick={() => {
-                      const newFeatures = formik.values.features.includes(feature)
-                        ? formik.values.features.filter((f) => f !== feature)
-                        : [...formik.values.features, feature];
-                      formik.setFieldValue('features', newFeatures);
-                    }}
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      minWidth: 'auto',
-                      px: 2,
-                    }}
-                  >
-                    {feature}
-                  </Button>
-                ))}
-              </Box>
-              {formik.touched.features && formik.errors.features && (
-                <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
-                  {typeof formik.errors.features === 'string' ? formik.errors.features : '특징을 선택해주세요'}
-                </Typography>
-              )}
+              <FormControl fullWidth error={formik.touched.features && Boolean(formik.errors.features)}>
+                <InputLabel>특징</InputLabel>
+                <Select
+                  multiple
+                  name="features"
+                  value={formik.values.features}
+                  onChange={formik.handleChange}
+                  input={<OutlinedInput label="특징" />}
+                  renderValue={(selected) => (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      {selected.map((value) => (
+                        <Chip key={value} label={value} />
+                      ))}
+                    </Box>
+                  )}
+                >
+                  {propertyFeatures.map((feature) => (
+                    <MenuItem key={feature} value={feature}>
+                      {feature}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="상세 설명"
+                label="설명"
                 name="description"
-                value={formik.values.description}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                error={formik.touched.description && Boolean(formik.errors.description)}
-                helperText={formik.touched.description && formik.errors.description}
                 multiline
                 rows={4}
-                placeholder="매물에 대한 자세한 설명을 입력하세요"
+                value={formik.values.description}
+                onChange={formik.handleChange}
+                error={formik.touched.description && Boolean(formik.errors.description)}
+                helperText={formik.touched.description && formik.errors.description}
               />
             </Grid>
             <Grid item xs={12}>
@@ -474,10 +422,11 @@ const PropertyEdit = () => {
                 files={formik.values.images}
                 onChange={(files) => formik.setFieldValue('images', files)}
                 error={formik.touched.images && Boolean(formik.errors.images)}
-                helperText={typeof formik.errors.images === 'string' ? formik.errors.images : undefined}
-                maxFiles={10}
-                accept="image/*"
+                helperText={formik.touched.images && formik.errors.images as string}
               />
+            </Grid>
+            <Grid item xs={12}>
+              <PropertyImageGallery images={formik.values.images.map(file => file.name)} />
             </Grid>
           </Grid>
         );
